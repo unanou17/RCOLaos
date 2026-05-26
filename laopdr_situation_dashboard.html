@@ -381,36 +381,37 @@ function setCS(msg,t){const e=document.getElementById('cfgStatus');e.textContent
 async function testUrls(){
   const panel=document.getElementById('testResults');
   panel.style.display='block';
-  panel.innerHTML='<span style="color:#009EDB">Running URL testsu2026</span>\n\n';
-  setCS('Testingu2026','info');
+  panel.innerHTML='<span style="color:#009EDB">Testing via Anthropic API...</span>\n\n';
+  setCS('Testing...','info');
   const labels=['KPIs','CPI','Fuel'];
   const ids=['url-kpis','url-cpi','url-fuel'];
   const expectedKeys=[['key','value'],['month','transport'],['date','petrol_vte']];
   for(let i=0;i<3;i++){
     const url=document.getElementById(ids[i]).value.trim();
     const label=labels[i];
-    panel.innerHTML+='<span style="color:#F5A623">u2500u2500 '+label+' tab u2500u2500</span>\n';
-    if(!url){panel.innerHTML+='<span style="color:#E84C4C">u2717 No URL entered</span>\n\n';continue;}
+    panel.innerHTML+='<span style="color:#F5A623">--- '+label+' tab ---</span>\n';
+    if(!url){panel.innerHTML+='<span style="color:#E84C4C">No URL entered</span>\n\n';continue;}
     const gidMatch=url.match(/[?&]gid=(\d+)/);
     const gid=gidMatch?gidMatch[1]:'NOT FOUND IN URL';
-    panel.innerHTML+='URL: '+url.slice(0,80)+'\ngid detected: <span style="color:'+(gid==='NOT FOUND IN URL'?'#E84C4C':'#27AE60')+'">'+gid+'</span>\n';
-    const bustUrl=url.replace(/[?&]output=[^&]*/g,'').replace(/[?&]single=[^&]*/g,'')+(url.includes('?')?'&':'?')+'output=csv&single=true&t='+Date.now();
-    try{
-      panel.innerHTML+='Fetchingu2026\n';
-      const res=await fetch(bustUrl,{method:'GET',mode:'cors',cache:'no-store'});
-      panel.innerHTML+='HTTP status: <span style="color:'+(res.ok?'#27AE60':'#E84C4C')+'">'+res.status+' '+res.statusText+'</span>\n';
-      if(!res.ok){panel.innerHTML+='<span style="color:#E84C4C">u2717 Server rejected u2014 re-publish this tab: File u2192 Share u2192 Publish to web u2192 "'+label+'" u2192 CSV u2192 Publish</span>\n\n';continue;}
-      const text=await res.text();
-      if(text.trim().startsWith('<!')){panel.innerHTML+='<span style="color:#E84C4C">u2717 Got HTML not CSV u2014 tab not published or wrong gid</span>\n\n';continue;}
-      const lines=text.trim().split('\n');
-      panel.innerHTML+='Rows: <span style="color:#27AE60">'+lines.length+'</span>\nHeader: <span style="color:#1ABC9C">'+lines[0]+'</span>\n';
-      if(lines.length>1)panel.innerHTML+='Row 1: <span style="color:#1ABC9C">'+lines[1]+'</span>\n';
-      const headers=lines[0].toLowerCase();
-      const missing=expectedKeys[i].filter(k=>!headers.includes(k));
-      panel.innerHTML+=(missing.length?'<span style="color:#E84C4C">u2717 Missing columns: '+missing.join(', ')+'</span>':'<span style="color:#27AE60">u2713 Columns OK</span>')+'\n\n';
-    }catch(e){panel.innerHTML+='<span style="color:#E84C4C">u2717 '+e.message+'</span>\n\n';}
+    panel.innerHTML+='gid detected: <span style="color:'+(gid==='NOT FOUND IN URL'?'#E84C4C':'#27AE60')+'">'+gid+'</span>\n';
+    panel.innerHTML+='Fetching via Claude API...\n';
+    const rows=await fetchSheetViaAPI(url,label);
+    if(!rows){
+      panel.innerHTML+='<span style="color:#E84C4C">FAILED - see debug log for details</span>\n\n';
+    } else {
+      panel.innerHTML+='Rows received: <span style="color:#27AE60">'+rows.length+'</span>\n';
+      if(rows.length>0){
+        panel.innerHTML+='Columns: <span style="color:#1ABC9C">'+Object.keys(rows[0]).join(', ')+'</span>\n';
+        panel.innerHTML+='Row 1: <span style="color:#1ABC9C">'+JSON.stringify(rows[0])+'</span>\n';
+        const headers=Object.keys(rows[0]).map(k=>k.toLowerCase());
+        const missing=expectedKeys[i].filter(k=>!headers.some(h=>h.includes(k)));
+        panel.innerHTML+=(missing.length?'<span style="color:#E84C4C">Missing columns: '+missing.join(', ')+'</span>':'<span style="color:#27AE60">All columns OK</span>')+'\n';
+      }
+      panel.innerHTML+='\n';
+    }
+    panel.scrollTop=panel.scrollHeight;
   }
-  panel.innerHTML+='<span style="color:#009EDB">u2500u2500 Done u2500u2500</span>';
+  panel.innerHTML+='<span style="color:#009EDB">--- Done ---</span>';
   setCS('Tests complete','ok');
   panel.scrollTop=panel.scrollHeight;
 }
@@ -453,29 +454,44 @@ function parseCSV(text){
 //  Key: add cache-busting param so browser doesn't
 //  serve stale cached version
 // ══════════════════════════════════════════════════
-async function fetchSheetCSV(url){
+// ══════════════════════════════════════════════════
+//  FETCH SHEET VIA ANTHROPIC API (bypasses CORS)
+//  The API server fetches the CSV on our behalf
+// ══════════════════════════════════════════════════
+async function fetchSheetViaAPI(url, tabName){
   if(!url) return null;
-  // Strip any existing output param and force csv + cache bust
-  const base=url.split('&output=')[0].split('?output=')[0];
-  const sep=base.includes('?')?'&':'?';
-  const bustUrl=base+sep+'output=csv&t='+Date.now();
-  log('Fetching: '+bustUrl.slice(0,80)+'…');
+  log('Fetching '+tabName+' via Claude API: '+url.slice(0,70)+'…');
   try{
-    const res=await fetch(bustUrl,{
-      method:'GET',
-      mode:'cors',
-      cache:'no-store',
-      headers:{'Accept':'text/csv,text/plain,*/*'}
+    const prompt=`Fetch the content of this Google Sheets CSV URL and return ONLY the raw CSV text, nothing else — no explanation, no markdown, no backticks. Just the plain CSV starting with the header row.
+
+URL: ${url}
+
+Return only the CSV text.`;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:4000,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:prompt}]
+      })
     });
-    if(!res.ok) throw new Error('HTTP '+res.status+' '+res.statusText);
-    const text=await res.text();
-    if(!text||text.trim().length<5) throw new Error('Empty response');
-    // Check we got CSV not an HTML error page
-    if(text.trim().startsWith('<!')) throw new Error('Got HTML instead of CSV — check sheet is published');
-    log('OK: '+text.split('\n').length+' rows received');
-    return parseCSV(text);
+    if(!res.ok) throw new Error('API HTTP '+res.status);
+    const data=await res.json();
+    // Get text content from response
+    const textBlock=(data.content||[]).find(b=>b.type==='text');
+    if(!textBlock||!textBlock.text) throw new Error('No text in API response');
+    const csv=textBlock.text.trim();
+    // Reject if it looks like an error message rather than CSV
+    if(csv.startsWith('I ') || csv.startsWith('The ') || csv.startsWith('Sorry') || csv.length<10){
+      throw new Error('API returned prose instead of CSV: '+csv.slice(0,80));
+    }
+    const rows=parseCSV(csv);
+    log(tabName+' OK: '+rows.length+' rows parsed');
+    return rows;
   }catch(e){
-    log('FAILED: '+e.message);
+    log(tabName+' FAILED: '+e.message);
     return null;
   }
 }
@@ -643,15 +659,15 @@ async function initDashboard(){
   chip('chip-sheets',hasSheets?'Sheets: fetching…':'Sheets: not configured',hasSheets?'loading':'warn');
   chip('chip-mode','Loading…','loading');
 
-  // ── STEP 1: Fetch Google Sheets directly (browser fetch, CORS allowed by Google) ──
+  // ── STEP 1: Fetch Google Sheets via Anthropic API (no CORS issues) ──
   let sheetsLoaded=0;
   if(hasSheets){
-    setProgress(15,'Fetching Google Sheets…');
-    log('=== SHEETS FETCH ===');
+    setProgress(15,'Fetching Google Sheets via Claude API…');
+    log('=== SHEETS FETCH (via Anthropic API) ===');
     const [kpiRows,cpiRows,fuelRows]=await Promise.all([
-      fetchSheetCSV(urls.kpis),
-      fetchSheetCSV(urls.cpi),
-      fetchSheetCSV(urls.fuel)
+      fetchSheetViaAPI(urls.kpis,'KPIs'),
+      fetchSheetViaAPI(urls.cpi,'CPI'),
+      fetchSheetViaAPI(urls.fuel,'Fuel')
     ]);
     setProgress(50,'Applying sheet data…');
     sheetsLoaded += applyKPISheet(kpiRows);

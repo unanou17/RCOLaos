@@ -310,9 +310,122 @@ footer a{color:var(--un)} footer strong{color:var(--text)}
 
 <script>
 // ══════════════════════════════════════════════════
-//  IMPROVED GOOGLE SHEETS FETCHING
-//  Supports both "Published to Web" and Standard Sharing URLs
+//  STATE & UI HELPERS
 // ══════════════════════════════════════════════════
+let debugLog = [];
+let debugVisible = false;
+
+function log(msg) {
+  console.log(msg);
+  debugLog.push(msg);
+}
+
+function updateDebug() {
+  const dp = document.getElementById('debugPanel');
+  if (dp) dp.textContent = debugLog.join('\n');
+}
+
+function getUrls() {
+  return {
+    kpis: document.getElementById('url-kpis')?.value || '',
+    cpi: document.getElementById('url-cpi')?.value || '',
+    fuel: document.getElementById('url-fuel')?.value || ''
+  };
+}
+
+function setProgress(percent, text) {
+  const wrap = document.getElementById('progWrap');
+  const fill = document.getElementById('progFill');
+  const lbl = document.getElementById('progLbl');
+  if(wrap && fill && lbl) {
+    wrap.classList.add('show');
+    fill.style.width = percent + '%';
+    lbl.textContent = text;
+    if(percent >= 100) setTimeout(() => wrap.classList.remove('show'), 1500);
+  }
+}
+
+function chip(id, text, status) {
+  const el = document.getElementById(id);
+  if(el) {
+    el.className = 'chip ' + status;
+    el.innerHTML = status === 'loading' ? '<span class="spin"></span>&nbsp;' + text : text;
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  CSV PARSER
+// ══════════════════════════════════════════════════
+function parseCSV(str) {
+  const rows = [];
+  const lines = str.split(/\r?\n/);
+  if (lines.length === 0) return rows;
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());
+  
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+    const row = {};
+    headers.forEach((h, j) => row[h] = values[j]);
+    rows.push(row);
+  }
+  return rows;
+}
+
+// ══════════════════════════════════════════════════
+//  CONFIG PANEL ACTIONS
+// ══════════════════════════════════════════════════
+function toggleCfg() {
+  const body = document.getElementById('cfgBody');
+  const lbl = document.getElementById('cfgLbl');
+  if(body.classList.contains('open')) {
+    body.classList.remove('open');
+    lbl.textContent = '▼ expand';
+  } else {
+    body.classList.add('open');
+    lbl.textContent = '▲ collapse';
+  }
+}
+
+function saveCfgAndReload() {
+  initDashboard();
+}
+
+function clearCfg() {
+  document.getElementById('url-kpis').value = '';
+  document.getElementById('url-cpi').value = '';
+  document.getElementById('url-fuel').value = '';
+}
+
+function testUrls() {
+  const panel = document.getElementById('testResults');
+  panel.style.display = 'block';
+  panel.textContent = 'Testing URLs...\n(Functionality to be implemented)';
+}
+
+// ══════════════════════════════════════════════════
+//  FALLBACK DATA (Used if Google Sheets fail to load)
+// ══════════════════════════════════════════════════
+const FB = {
+  cpi: { 
+    labels: ['Jan', 'Feb', 'Mar', 'Apr'], 
+    transport: [2, 3, 4, 5], 
+    food: [1, 2, 2, 3], 
+    other: [0.5, 1, 1.5, 2.2] 
+  },
+  fuel: { 
+    labels: ['W1', 'W2', 'W3', 'W4'], 
+    petrol: [100, 105, 110, 112], 
+    diesel: [100, 102, 108, 115], 
+    plattsP: [100, 104, 109, 111], 
+    plattsD: [100, 103, 107, 114] 
+  },
+  crude: { 
+    labels: ['Day 1', 'Day 2', 'Day 3'], 
+    brent: [80, 85, 90], 
+    wti: [75, 80, 85] 
+  }
+};
 
 function buildCsvUrl(url){
   let u = url.trim();

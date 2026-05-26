@@ -209,16 +209,7 @@ footer a{color:var(--un)} footer strong{color:var(--text)}
     </div>
   </div>
 
-  <div class="alerts">
-    <div class="ac crit"><div class="atag crit">⚠ Critical Risk</div>
-      <div class="atext">Strait of Hormuz restrictions leave Asia-Pacific highly exposed. Supply disruption risk peaks <strong>May–June 2026</strong>. Final pre-crisis crude arrived April; refinery capacity uneven.</div></div>
-    <div class="ac warn"><div class="atag warn">✈ Aviation &amp; Tourism</div>
-      <div class="atext">Jet fuel prices <strong>doubled</strong>. Luang Prabang: <strong>46% fewer Pi Mai visitors</strong>; tourism earnings fell 55% to $54.2M. Thai AirAsia cutting 30% capacity May–June.</div></div>
-    <div class="ac info"><div class="atag info">📦 Supply Chain</div>
-      <div class="atext">Construction materials up <strong>30%</strong> since end-Feb. UN agencies absorbing up to <strong>20% extra project costs</strong>. WFP: +24% food insecurity in Asia-Pacific by end-2026.</div></div>
-    <div class="ac pos"><div class="atag pos">✓ Positive Signals</div>
-      <div class="atext">Thai refineries (97% of Lao fuel supply) at <strong>full capacity</strong>. China/Korea/Taiwan raising jet fuel exports. Platts diesel down ~50% in 3 weeks. FX reserves stable at $4.2B.</div></div>
-  </div>
+<div class="alerts" id="alerts-container"></div>
 </div>
 <footer>
   <strong>Sources:</strong> <a href="https://www.lsb.gov.la" target="_blank">Lao Statistics Bureau</a> | 
@@ -233,7 +224,9 @@ footer a{color:var(--un)} footer strong{color:var(--text)}
 const HARDCODED_URLS = {
   kpis: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7cTilc179XVU6S-tJMmRcpsNJd0SgcaSvkEiW3aQV_GqRykZHiFatB5Vgw4pgPDa3CSFKOZF8v5q/pub?gid=0&single=true&output=csv',
   cpi:  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7cTilc179XVU6S-tJMmRcpsNJd0SgcaSvkEiW3aQV_GqRykZHiFatB5Vgw4pgPDa3CSFKOZF8v5q/pub?gid=1142209738&single=true&output=csv',
-  fuel: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7cTilc179XVU6S-tJMmRcpsNJd0SgcaSvkEiW3aQV_GqRykZHiFatB5Vgw4pgPDa3CSFKOZF8v5q/pub?gid=410362409&single=true&output=csv'
+  fuel: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7cTilc179XVU6S-tJMmRcpsNJd0SgcaSvkEiW3aQV_GqRykZHiFatB5Vgw4pgPDa3CSFKOZF8v5q/pub?gid=410362409&single=true&output=csv',
+  alerts: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7cTilc179XVU6S-tJMmRcpsNJd0SgcaSvkEiW3aQV_GqRykZHiFatB5Vgw4pgPDa3CSFKOZF8v5q/pub?gid=1054060297&single=true&output=csv'
+};
 };
 
 // ══════════════════════════════════════════════════
@@ -451,6 +444,19 @@ function buildFX(liveLak){
   });
 }
 
+// Add this helper function in your script section
+function applyAlertsSheet(rows) {
+  const container = document.getElementById('alerts-container');
+  if (!rows || !rows.length) return;
+  
+  container.innerHTML = rows.map(r => `
+    <div class="ac ${r.type || 'info'}">
+      <div class="atag ${r.type || 'info'}">${r.title || 'Update'}</div>
+      <div class="atext">${r.content || ''}</div>
+    </div>
+  `).join('');
+}
+
 // ── APPLY SHEET DATA ──────────────────────────────
 function applyKPISheet(rows){
   if(!rows||!rows.length) return 0;
@@ -540,12 +546,14 @@ async function initDashboard(){
     const [kpiRows,cpiRows,fuelRows]=await Promise.all([
       fetchSheetViaAPI(urls.kpis,'KPIs'),
       fetchSheetViaAPI(urls.cpi,'CPI'),
-      fetchSheetViaAPI(urls.fuel,'Fuel')
+      fetchSheetViaAPI(urls.fuel,'Fuel'),
+      fetchSheetViaAPI(urls.alerts, 'Alerts')
     ]);
     setProgress(50,'Applying sheet data…');
     sheetsLoaded += applyKPISheet(kpiRows);
     sheetsLoaded += applyCPISheet(cpiRows);
     sheetsLoaded += applyFuelSheet(fuelRows);
+    sheetsLoaded += applyAlertsSheet(alertRows);
     chip('chip-sheets',sheetsLoaded>0?`Sheets: ${sheetsLoaded} tab(s) updated ✓`:'Sheets: fetch failed — check URLs & publishing',sheetsLoaded>0?'ok':'err');
   } else {
     buildCPI(FB.cpi); buildFuel(FB.fuel);

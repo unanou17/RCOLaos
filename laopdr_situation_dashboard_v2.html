@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lao PDR · Middle East Crisis · Situation Update</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap');
+:root{
+  --un:#009EDB;--dark:#0A1628;--mid:#0D2240;
+  --red:#E84C4C;--amber:#F5A623;--green:#27AE60;--teal:#1ABC9C;
+  --text:#EEF2F7;--muted:#8A9AB5;--card:rgba(13,34,64,0.85);--border:rgba(0,158,219,0.2);
+  --grid:rgba(0,158,219,0.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--dark);color:var(--text);font-size:13px;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:40px 40px}
+header{background:linear-gradient(135deg,var(--mid),#071527);border-bottom:2px solid var(--un);
+  padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  position:sticky;top:0;z-index:100;box-shadow:0 4px 30px rgba(0,0,0,.5)}
+.hrow{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;background:var(--un);border-radius:50%;display:grid;place-items:center;
+  font-size:9px;font-weight:700;color:#fff;text-align:center;line-height:1.15;flex-shrink:0}
+.htitle h1{font-size:14px;font-weight:700}
+.htitle p{font-size:10px;color:var(--muted);margin-top:1px}
+.badge{background:rgba(0,158,219,.15);border:1px solid var(--un);border-radius:4px;padding:3px 9px;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--un)}
+#ts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+.btn{border:none;border-radius:4px;padding:5px 12px;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif}
+.btn-blue{background:var(--un)}.btn-ghost{background:transparent;border:1px solid var(--muted);color:var(--muted)}.btn:hover{opacity:.85}
+
+/* STATUS */
+.srow{display:flex;align-items:center;gap:8px;padding:8px 18px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:3px 10px;font-size:10px;font-family:'IBM Plex Mono',monospace}
+.chip.ok{border-color:rgba(39,174,96,.4);color:var(--green)}
+.chip.err{border-color:rgba(232,76,76,.4);color:var(--red)}
+.chip.loading{border-color:rgba(0,158,219,.4);color:var(--un)}
+.chip.warn{border-color:rgba(245,166,35,.4);color:var(--amber)}
+
+/* PROGRESS */
+.prog-wrap{padding:0 18px 6px;display:none}
+.prog-wrap.show{display:block}
+.prog-bar{height:3px;background:rgba(0,158,219,0.15);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--un);border-radius:2px;width:0;transition:width .4s ease}
+.prog-lbl{font-size:9px;color:var(--muted);margin-top:3px;font-family:'IBM Plex Mono',monospace}
+
+/* KPIs */
+.dash{padding:10px 18px 22px;display:grid;gap:12px}
+.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:13px 15px;
+  backdrop-filter:blur(8px);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.red::before{background:var(--red)}.kpi.amber::before{background:var(--amber)}
+.kpi.green::before{background:var(--green)}.kpi.blue::before{background:var(--un)}.kpi.teal::before{background:var(--teal)}
+.klbl{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:5px}
+.kval{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;line-height:1}
+.kval.red{color:var(--red)}.kval.amber{color:var(--amber)}.kval.green{color:var(--green)}
+.kval.blue{color:var(--un)}.kval.teal{color:var(--teal)}
+.ksub{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.3}
+.ksrc{font-size:9px;color:rgba(138,154,181,.5);margin-top:5px}
+.ksrc a{color:inherit;text-decoration:underline}
+.ldot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px;animation:pulse 2s infinite}
+.sdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--un);margin-right:4px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CHARTS */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:15px;backdrop-filter:blur(8px)}
+.ctitle{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
+.csub{font-size:10px;color:var(--muted);margin-bottom:10px}
+.csrc{font-size:9px;color:rgba(138,154,181,.5);margin-top:8px;line-height:1.4}
+.csrc a{color:var(--un);text-decoration:none}.csrc a:hover{text-decoration:underline}
+canvas{max-height:200px}
+
+/* ALERTS */
+.alerts{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:9px}
+.ac{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:13px 15px;border-left:3px solid}
+.ac.crit{border-left-color:var(--red)}.ac.warn{border-left-color:var(--amber)}
+.ac.info{border-left-color:var(--un)}.ac.pos{border-left-color:var(--green)}
+.atag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;margin-bottom:5px}
+.atag.crit{color:var(--red)}.atag.warn{color:var(--amber)}.atag.info{color:var(--un)}.atag.pos{color:var(--green)}
+.atext{font-size:11px;line-height:1.5}
+
+footer{margin:6px 18px 18px;padding:11px 15px;background:var(--card);border:1px solid var(--border);
+  border-radius:8px;font-size:10px;color:var(--muted);line-height:1.9}
+footer a{color:var(--un)} footer strong{color:var(--text)}
+.spin{display:inline-block;width:9px;height:9px;border:2px solid rgba(255,255,255,.2);
+  border-top-color:var(--un);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RAW DATA DEBUG */
+.debug-panel{margin:0 18px 10px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,158,219,0.2);
+  border-radius:6px;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:9px;
+  color:var(--muted);display:none;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+.debug-panel.show{display:block}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <div class="logo">UN<br>LAO</div>
+    <div class="htitle">
+      <h1>Lao PDR — Impact of the Middle East Crisis</h1>
+      <p>Situation Update Dashboard&nbsp;|&nbsp; United Nations Lao PDR</p>
+    </div>
+  </div>
+  <div class="hrow">
+    <span class="badge">LIVE DASHBOARD</span>
+    <span id="ts">Ready</span>
+    <button class="btn btn-blue" onclick="initDashboard()">↺ Refresh</button>
+  </div>
+</header>
+
+<div class="debug-panel" id="debugPanel">Fetch log will appear here…</div>
+
+<div class="srow">
+  <div class="chip loading" id="chip-prices"><span class="spin"></span>&nbsp;Live prices: loading…</div>
+  <div class="chip warn" id="chip-sheets">Sheets: fetching…</div>
+  <div class="chip warn" id="chip-mode">Mode: loading…</div>
+</div>
+<div class="prog-wrap" id="progWrap">
+  <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+  <div class="prog-lbl" id="progLbl">Loading…</div>
+</div>
+
+<div class="dash">
+  <div class="krow">
+    <div class="kpi amber">
+      <div class="klbl"><span class="sdot"></span>CPI Inflation (YoY)</div>
+      <div class="kval amber" id="kv-cpi">10.2%</div>
+      <div class="ksub" id="ks-cpi">April 2026 · Transport: 97% of 2-month rise</div>
+      <div class="ksrc"><a href="https://www.lsb.gov.la" target="_blank">Lao Statistics Bureau</a></div>
+    </div>
+    <div class="kpi red">
+      <div class="klbl"><span class="ldot"></span>Brent Crude (Live)</div>
+      <div class="kval red" id="kv-brent">—</div>
+      <div class="ksub" id="ks-brent">Fetching…</div>
+      <div class="ksrc"><a href="https://finance.yahoo.com/quote/BZ%3DF/" target="_blank">Yahoo Finance BZ=F</a></div>
+    </div>
+    <div class="kpi red">
+      <div class="klbl"><span class="ldot"></span>WTI Crude (Live)</div>
+      <div class="kval red" id="kv-wti">—</div>
+      <div class="ksub" id="ks-wti">Fetching…</div>
+      <div class="ksrc"><a href="https://finance.yahoo.com/quote/CL%3DF/" target="_blank">Yahoo Finance CL=F</a></div>
+    </div>
+    <div class="kpi blue">
+      <div class="klbl"><span class="ldot"></span>USD / LAK (Live)</div>
+      <div class="kval blue" id="kv-lak">—</div>
+      <div class="ksub" id="ks-lak">Fetching…</div>
+      <div class="ksrc"><a href="https://open.er-api.com/v6/latest/USD" target="_blank">ExchangeRate-API</a></div>
+    </div>
+    <div class="kpi amber">
+      <div class="klbl"><span class="sdot"></span>Petrol – Vientiane</div>
+      <div class="kval amber" id="kv-petrol">34,400</div>
+      <div class="ksub" id="ks-petrol">LAK/L · update via Google Sheet</div>
+      <div class="ksrc"><a href="https://www.lsfc.gov.la" target="_blank">Lao State Fuel Company</a></div>
+    </div>
+    <div class="kpi amber">
+      <div class="klbl"><span class="sdot"></span>Diesel – Vientiane</div>
+      <div class="kval amber" id="kv-diesel">39,400</div>
+      <div class="ksub" id="ks-diesel">LAK/L · update via Google Sheet</div>
+      <div class="ksrc"><a href="https://www.lsfc.gov.la" target="_blank">Lao State Fuel Company</a></div>
+    </div>
+    <div class="kpi green">
+      <div class="klbl"><span class="sdot"></span>FX Reserves</div>
+      <div class="kval green" id="kv-fx">$4.2B</div>
+      <div class="ksub" id="ks-fx">update via Google Sheet</div>
+      <div class="ksrc"><a href="https://www.bol.gov.la/statistics/BOP6_Lao%20PDR.xlsx" target="_blank">Bank of Lao PDR</a></div>
+    </div>
+    <div class="kpi teal">
+      <div class="klbl"><span class="sdot"></span>GDP Growth 2026</div>
+      <div class="kval teal" id="kv-gdp">4.0%</div>
+      <div class="ksub" id="ks-gdp">IMF/ADB · WB: 3.5%</div>
+      <div class="ksrc"><a href="https://www.imf.org/external/datamapper/datasets/WEO" target="_blank">IMF WEO</a> / <a href="https://www.adb.org/publications/asian-development-outlook-april-2026" target="_blank">ADB ADO</a></div>
+    </div>
+  </div>
+
+  <div class="cgrid">
+    <div class="cc">
+      <div class="ctitle"><span class="ldot"></span>Crude Oil Prices (Live)</div>
+      <div class="csub">Brent &amp; WTI · USD/bbl · recent trend</div>
+      <canvas id="chartCrude"></canvas>
+      <div class="csrc">Yahoo Finance
+      </div>
+    </div>
+    <div class="cc">
+      <div class="ctitle"><span class="ldot"></span>USD / LAK Exchange Rate</div>
+      <div class="csub">Report-period range + live spot</div>
+      <canvas id="chartFX"></canvas>
+      <div class="csrc">
+        <a href="https://open.er-api.com/v6/latest/USD" target="_blank">ExchangeRate-API</a>
+      </div>
+    </div>
+    <div class="cc">
+      <div class="ctitle" id="cpi-title"><span class="sdot"></span>CPI by Component (YoY%)</div>
+      <div class="csub" id="cpi-sub">Apr 2025 – Apr 2026</div>
+      <canvas id="chartCPI"></canvas>
+      <div class="csrc"><a href="https://www.lsb.gov.la" target="_blank">Lao Statistics Bureau</a> — update via Google Sheet</div>
+    </div>
+    <div class="cc">
+      <div class="ctitle" id="fuel-title"><span class="sdot"></span>Fuel Retail Prices – Vientiane</div>
+      <div class="csub" id="fuel-sub">Indexed (27 Feb = 100)</div>
+      <canvas id="chartFuel"></canvas>
+      <div class="csrc"><a href="https://www.lsfc.gov.la" target="_blank">Lao State Fuel Company</a> — update via Google Sheet</div>
+    </div>
+  </div>
+
+  <div class="alerts">
+    <div class="ac crit"><div class="atag crit">⚠ Critical Risk</div>
+      <div class="atext">Strait of Hormuz restrictions leave Asia-Pacific highly exposed. Supply disruption risk peaks <strong>May–June 2026</strong>. Final pre-crisis crude arrived April; refinery capacity uneven.</div></div>
+    <div class="ac warn"><div class="atag warn">✈ Aviation &amp; Tourism</div>
+      <div class="atext">Jet fuel prices <strong>doubled</strong>. Luang Prabang: <strong>46% fewer Pi Mai visitors</strong>; tourism earnings fell 55% to $54.2M. Thai AirAsia cutting 30% capacity May–June.</div></div>
+    <div class="ac info"><div class="atag info">📦 Supply Chain</div>
+      <div class="atext">Construction materials up <strong>30%</strong> since end-Feb. UN agencies absorbing up to <strong>20% extra project costs</strong>. WFP: +24% food insecurity in Asia-Pacific by end-2026.</div></div>
+    <div class="ac pos"><div class="atag pos">✓ Positive Signals</div>
+      <div class="atext">Thai refineries (97% of Lao fuel supply) at <strong>full capacity</strong>. China/Korea/Taiwan raising jet fuel exports. Platts diesel down ~50% in 3 weeks. FX reserves stable at $4.2B.</div></div>
+  </div>
+</div>
+<footer>
+  <strong>Sources:</strong> <a href="https://www.lsb.gov.la" target="_blank">Lao Statistics Bureau</a> | 
+  <a href="https://www.lsfc.gov.la" target="_blank">Lao State Fuel Co.</a> | 
+  <a href="https://www.bol.gov.la/statistics/BOP6_Lao%20PDR.xlsx" target="_blank">Bank of Lao PDR</a>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════
+//  HARDCODED GOOGLE SHEETS URLs
+// ══════════════════════════════════════════════════
+const HARDCODED_URLS = {
+  kpis: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7cTilc179XVU6S-tJMmRcpsNJd0SgcaSvkEiW3aQV_GqRykZHiFatB5Vgw4pgPDa3CSFKOZF8v5q/pub?gid=0&single=true&output=csv',
+  cpi:  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7cTilc179XVU6S-tJMmRcpsNJd0SgcaSvkEiW3aQV_GqRykZHiFatB5Vgw4pgPDa3CSFKOZF8v5q/pub?gid=1142209738&single=true&output=csv',
+  fuel: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7cTilc179XVU6S-tJMmRcpsNJd0SgcaSvkEiW3aQV_GqRykZHiFatB5Vgw4pgPDa3CSFKOZF8v5q/pub?gid=410362409&single=true&output=csv'
+};
+
+// ══════════════════════════════════════════════════
+//  STATE & UI HELPERS
+// ══════════════════════════════════════════════════
+let debugLog = [];
+let debugVisible = false;
+
+function log(msg) {
+  console.log(msg);
+  debugLog.push(msg);
+}
+
+function updateDebug() {
+  const dp = document.getElementById('debugPanel');
+  if (dp) dp.textContent = debugLog.join('\n');
+}
+
+function setProgress(percent, text) {
+  const wrap = document.getElementById('progWrap');
+  const fill = document.getElementById('progFill');
+  const lbl = document.getElementById('progLbl');
+  if(wrap && fill && lbl) {
+    wrap.classList.add('show');
+    fill.style.width = percent + '%';
+    lbl.textContent = text;
+    if(percent >= 100) setTimeout(() => wrap.classList.remove('show'), 1500);
+  }
+}
+
+function chip(id, text, status) {
+  const el = document.getElementById(id);
+  if(el) {
+    el.className = 'chip ' + status;
+    el.innerHTML = status === 'loading' ? '<span class="spin"></span>&nbsp;' + text : text;
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  CSV & DATA PARSERS 
+// ══════════════════════════════════════════════════
+function parseCSV(str) {
+  const rows = [];
+  const lines = str.split(/\r?\n/);
+  if (lines.length === 0) return rows;
+  
+  const parseLine = (line) => {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"' && line[i+1] === '"') {
+        current += '"';
+        i++;
+      } else if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    result.push(current.trim());
+    return result;
+  };
+
+  const headers = parseLine(lines[0]).map(h => h.replace(/"/g, '').toLowerCase());
+  
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const values = parseLine(lines[i]).map(v => v.replace(/"/g, ''));
+    const row = {};
+    headers.forEach((h, j) => row[h] = values[j]);
+    rows.push(row);
+  }
+  return rows;
+}
+
+function parseNum(val) {
+  if (typeof val !== 'string') return parseFloat(val) || 0;
+  return parseFloat(val.replace(/,/g, '')) || 0;
+}
+
+// ══════════════════════════════════════════════════
+//  FALLBACK DATA 
+// ══════════════════════════════════════════════════
+const FB = {
+  cpi: { labels: ['Jan', 'Feb', 'Mar', 'Apr'], transport: [2, 3, 4, 5], food: [1, 2, 2, 3], other: [0.5, 1, 1.5, 2.2] },
+  fuel: { labels: ['W1', 'W2', 'W3', 'W4'], petrol: [100, 105, 110, 112], diesel: [100, 102, 108, 115], plattsP: [100, 104, 109, 111], plattsD: [100, 103, 107, 114] },
+  crude: { labels: ['Day 1', 'Day 2', 'Day 3'], brent: [80, 85, 90], wti: [75, 80, 85] }
+};
+
+function buildCsvUrl(url){
+  let u = url.trim();
+  const idMatch = u.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  const gidMatch = u.match(/[?&#]gid=([0-9]+)/);
+  const isPublished = u.includes('/pub') || u.includes('/d/e/');
+
+  if (idMatch && !isPublished) {
+    const id = idMatch[1];
+    const gid = gidMatch ? gidMatch[1] : '0';
+    return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&gid=${gid}&_=${Date.now()}`;
+  } else {
+    u = u.replace(/[&?]output=[^&]*/g, '').replace(/[&?]single=[^&]*/g, '');
+    const sep = u.includes('?') ? '&' : '?';
+    return u + sep + `output=csv&single=true&_=${Date.now()}`;
+  }
+}
+
+async function fetchSheetViaAPI(url, tabName){
+  if(!url || url === 'YOUR_KPI_SHEET_URL_HERE' || url === 'YOUR_CPI_SHEET_URL_HERE' || url === 'YOUR_FUEL_SHEET_URL_HERE') return null;
+  const csvUrl = buildCsvUrl(url);
+  log('Fetching '+tabName+': '+csvUrl.slice(0,80)+'...');
+
+  try {
+    const res = await fetch(csvUrl, { cache: 'no-store' });
+    if(res.ok){
+      const text = await res.text();
+      if(text && !text.trim().startsWith('<!') && text.includes(',')){
+        const rows = parseCSV(text);
+        log(tabName+' direct fetch OK: '+rows.length+' rows');
+        return rows;
+      }
+    }
+  } catch(e) {}
+
+  try {
+    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(csvUrl);
+    const res2 = await fetch(proxyUrl, {cache:'no-store'});
+    if(res2.ok){
+      const text2 = await res2.text();
+      if(text2 && !text2.trim().startsWith('<!') && text2.includes(',')){
+        return parseCSV(text2);
+      }
+    }
+  } catch(e2) {}
+
+  try {
+    const proxyUrl2 = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(csvUrl);
+    const res3 = await fetch(proxyUrl2, {cache:'no-store'});
+    if(res3.ok){
+      const text3 = await res3.text();
+      if(text3 && !text3.trim().startsWith('<!') && text3.includes(',')){
+        return parseCSV(text3);
+      }
+    }
+  } catch(e3) {}
+
+  log(tabName+' all fetch attempts failed.');
+  return null;
+}
+
+// ── CHARTS ────────────────────────────────────────
+const CH={};
+function dc(id){if(CH[id]){CH[id].destroy();delete CH[id];}}
+
+function buildCPI(d){
+  dc('cpi');
+  CH.cpi=new Chart(document.getElementById('chartCPI'),{
+    type:'bar',
+    data:{labels:d.labels,datasets:[
+      {label:'Transport & Shipping',data:d.transport,backgroundColor:'rgba(232,76,76,0.75)',stack:'s'},
+      {label:'Food & Non-Alc. Bev.',data:d.food,backgroundColor:'rgba(245,166,35,0.75)',stack:'s'},
+      {label:'Inclusive Categories',data:d.other,backgroundColor:'rgba(26,188,156,0.55)',stack:'s'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:7,font:{size:9}}}},
+      scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>v+'%'}}}}
+  });
+}
+function buildFuel(d){
+  dc('fuel');
+  CH.fuel=new Chart(document.getElementById('chartFuel'),{
+    type:'line',
+    data:{labels:d.labels,datasets:[
+      {label:'Petrol VTE',data:d.petrol,borderColor:'#E84C4C',backgroundColor:'rgba(232,76,76,0.07)',tension:0.3,pointRadius:2},
+      {label:'Diesel VTE',data:d.diesel,borderColor:'#009EDB',backgroundColor:'rgba(0,158,219,0.07)',tension:0.3,pointRadius:2},
+      {label:'Platts Petrol',data:d.plattsP,borderColor:'rgba(232,76,76,0.4)',borderDash:[4,4],tension:0.3,pointRadius:1.5},
+      {label:'Platts Diesel',data:d.plattsD,borderColor:'rgba(0,158,219,0.4)',borderDash:[4,4],tension:0.3,pointRadius:1.5}
+    ]},
+    options:{responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:7,font:{size:9}}}},
+      scales:{x:{grid:{display:false}},y:{title:{display:true,text:'Index (27 Feb=100)',font:{size:9}}}}}
+  });
+}
+function buildCrude(d){
+  dc('crude');
+  CH.crude=new Chart(document.getElementById('chartCrude'),{
+    type:'line',
+    data:{labels:d.labels,datasets:[
+      {label:'Brent ($/bbl)',data:d.brent,borderColor:'#E84C4C',backgroundColor:'rgba(232,76,76,0.07)',tension:0.35,pointRadius:2},
+      {label:'WTI ($/bbl)',data:d.wti,borderColor:'#F5A623',backgroundColor:'rgba(245,166,35,0.07)',tension:0.35,pointRadius:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:7,font:{size:9}}}},
+      scales:{x:{grid:{display:false}},y:{ticks:{callback:v=>'$'+v},title:{display:true,text:'USD/bbl',font:{size:9}}}}}
+  });
+}
+function buildFX(liveLak){
+  dc('fx');
+  const L=['Jan-26','Feb-26','Mar(low)','Mar-18','Mar-31','Apr-7','Apr-14','May-1','Live'];
+  const V=[21600,21550,21400,21400,22000,22050,22100,21900,liveLak||21900];
+  CH.fx=new Chart(document.getElementById('chartFX'),{
+    type:'line',
+    data:{labels:L,datasets:[{label:'LAK/USD',data:V,borderColor:'#009EDB',
+      backgroundColor:'rgba(0,158,219,0.07)',tension:0.35,
+      pointRadius:V.map((_,i)=>i===V.length-1?6:3),
+      pointBackgroundColor:V.map((_,i)=>i===V.length-1?'#27AE60':'#009EDB')}]},
+    options:{responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{display:false}},
+      scales:{x:{grid:{display:false}},
+        y:{ticks:{callback:v=>v.toLocaleString()},min:21200,max:Math.max(22400,(liveLak||22000)+400)}}}
+  });
+}
+
+// ── APPLY SHEET DATA ──────────────────────────────
+function applyKPISheet(rows){
+  if(!rows||!rows.length) return 0;
+  const map={};
+  rows.forEach(r=>{ const k=(r.key||r.Key||'').trim(); if(k) map[k]=r; });
+  const set=(key,vid,sid)=>{
+    const r=map[key];
+    if(r){
+      const val=(r.value||r.Value||'').trim();
+      const sub=(r.sub||r.Sub||'').trim();
+      if(val) document.getElementById(vid).textContent=val;
+      if(sub&&sid) document.getElementById(sid).textContent=sub;
+    }
+  };
+  set('cpi_inflation','kv-cpi','ks-cpi');
+  set('petrol_lak','kv-petrol','ks-petrol');
+  set('diesel_lak','kv-diesel','ks-diesel');
+  set('fx_reserves','kv-fx','ks-fx');
+  set('gdp_forecast','kv-gdp','ks-gdp');
+  return 1;
+}
+
+function applyCPISheet(rows){
+  if(!rows||!rows.length){ buildCPI(FB.cpi); return 0; }
+  buildCPI({
+    labels: rows.map(r=>r.month||r.Month||Object.values(r)[0]||''),
+    transport: rows.map(r=>parseNum(r.transport||r.Transport)),
+    food: rows.map(r=>parseNum(r.food||r.Food)),
+    other: rows.map(r=>parseNum(r.other||r.Other||r['inclusive categories']||r['inclusive']))
+  });
+  document.getElementById('cpi-sub').textContent='Live from Google Sheets';
+  return 1;
+}
+
+function applyFuelSheet(rows){
+  if(!rows||!rows.length){ buildFuel(FB.fuel); return 0; }
+  buildFuel({
+    labels: rows.map(r=>r.date||r.Date||Object.values(r)[0]||''),
+    petrol: rows.map(r=>parseNum(r.petrol_vte||r.Petrol_VTE||r['petrol vte'])),
+    diesel: rows.map(r=>parseNum(r.diesel_vte||r.Diesel_VTE||r['diesel vte'])),
+    plattsP: rows.map(r=>parseNum(r.platts_p||r.Platts_P||r['platts p'])),
+    plattsD: rows.map(r=>parseNum(r.platts_d||r.Platts_D||r['platts d']))
+  });
+  document.getElementById('fuel-sub').textContent='Live from Google Sheets';
+  return 1;
+}
+
+// ══════════════════════════════════════════════════
+//  FETCH PRICES FROM GITHUB ACTION JSON
+// ══════════════════════════════════════════════════
+async function fetchLivePrices() {
+  try {
+    // Append timestamp to bust the browser cache so it always gets the latest file
+    const res = await fetch('./prices.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('prices.json not found');
+    
+    const data = await res.json();
+    if (!data.brentData || !data.wtiData) throw new Error('Incomplete data in JSON');
+    
+    return data;
+  } catch (e) {
+    log('Failed to read prices.json: ' + e.message);
+    throw e; // Triggers the fallback estimates in your main script
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  MAIN INIT
+// ══════════════════════════════════════════════════
+async function initDashboard(){
+  debugLog=[];
+  document.getElementById('ts').textContent='Refreshing…';
+  setProgress(5,'Starting…');
+  
+  const urls = HARDCODED_URLS;
+  const hasSheets = urls.kpis !== 'YOUR_KPI_SHEET_URL_HERE' || 
+                    urls.cpi !== 'YOUR_CPI_SHEET_URL_HERE' || 
+                    urls.fuel !== 'YOUR_FUEL_SHEET_URL_HERE';
+
+  chip('chip-prices','Live prices: fetching…','loading');
+  chip('chip-sheets',hasSheets?'Sheets: fetching…':'Sheets: not configured',hasSheets?'loading':'warn');
+  chip('chip-mode','Loading…','loading');
+
+  let sheetsLoaded=0;
+  if(hasSheets){
+    setProgress(15,'Fetching Google Sheets…');
+    const [kpiRows,cpiRows,fuelRows]=await Promise.all([
+      fetchSheetViaAPI(urls.kpis,'KPIs'),
+      fetchSheetViaAPI(urls.cpi,'CPI'),
+      fetchSheetViaAPI(urls.fuel,'Fuel')
+    ]);
+    setProgress(50,'Applying sheet data…');
+    sheetsLoaded += applyKPISheet(kpiRows);
+    sheetsLoaded += applyCPISheet(cpiRows);
+    sheetsLoaded += applyFuelSheet(fuelRows);
+    chip('chip-sheets',sheetsLoaded>0?`Sheets: ${sheetsLoaded} tab(s) updated ✓`:'Sheets: fetch failed — check URLs & publishing',sheetsLoaded>0?'ok':'err');
+  } else {
+    buildCPI(FB.cpi); buildFuel(FB.fuel);
+  }
+
+  setProgress(60,'Fetching live prices…');
+  
+  try {
+    const p = await fetchLivePrices();
+    
+    document.getElementById('kv-lak').textContent = Math.round(p.usd_lak).toLocaleString();
+    document.getElementById('ks-lak').textContent = `LAK per USD · ${p.as_of} · Live Spot`;
+    buildFX(Math.round(p.usd_lak));
+
+    if (p.brentData && p.wtiData) {
+      document.getElementById('kv-brent').textContent = '$' + p.brentData.current;
+      document.getElementById('ks-brent').textContent = `USD/bbl · ${p.as_of} · Live Data`;
+      document.getElementById('kv-wti').textContent = '$' + p.wtiData.current;
+      document.getElementById('ks-wti').textContent = `USD/bbl · ${p.as_of} · Live Data`;
+      buildCrude({labels: p.brentData.dates, brent: p.brentData.prices, wti: p.wtiData.prices});
+      chip('chip-prices','Live prices: updated ✓','ok');
+    } else {
+      throw new Error("Missing oil data");
+    }
+  } catch(e) {
+    document.getElementById('kv-brent').textContent = '~$104';
+    document.getElementById('ks-brent').textContent = 'Estimate — waiting for GitHub Action';
+    document.getElementById('kv-wti').textContent = '~$95';
+    document.getElementById('ks-wti').textContent = 'Estimate — waiting for GitHub Action';
+    document.getElementById('kv-lak').textContent = '~21,900';
+    document.getElementById('ks-lak').textContent = 'Estimate — waiting for GitHub Action';
+    buildCrude(FB.crude); buildFX(21900);
+    chip('chip-prices','Prices: Estimates shown (JSON unavailable)','warn');
+  }
+
+  setProgress(100,'Done!');
+  chip('chip-mode',hasSheets&&sheetsLoaded>0?'Mode: Google Sheets + live prices':hasSheets?'Mode: live prices (sheet fetch failed)':'Mode: live prices + built-in data',sheetsLoaded>0?'ok':'warn');
+  document.getElementById('ts').textContent='Updated: '+new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  if(debugVisible) updateDebug();
+}
+
+initDashboard();
+</script>
+</body>
+</html>

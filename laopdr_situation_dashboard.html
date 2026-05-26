@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,11 +28,8 @@ header{background:linear-gradient(135deg,var(--mid),#071527);border-bottom:2px s
 .badge{background:rgba(0,158,219,.15);border:1px solid var(--un);border-radius:4px;padding:3px 9px;
   font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--un)}
 #ts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
-.btn{border:none;border-radius:4px;padding:5px 12px;color:#fff;font-size:11px;font-weight:600;
-  cursor:pointer;font-family:'IBM Plex Sans',sans-serif}
-.btn-blue{background:var(--un)}
-.btn-ghost{background:transparent;border:1px solid var(--muted);color:var(--muted)}
-.btn:hover{opacity:.85}
+.btn{border:none;border-radius:4px;padding:5px 12px;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif}
+.btn-blue{background:var(--un)}.btn-ghost{background:transparent;border:1px solid var(--muted);color:var(--muted)}.btn:hover{opacity:.85}
 
 /* CONFIG */
 .cfg{background:rgba(0,158,219,0.07);border:1px solid rgba(0,158,219,0.3);margin:10px 18px 0;border-radius:8px;overflow:hidden}
@@ -56,17 +52,9 @@ header{background:linear-gradient(135deg,var(--mid),#071527);border-bottom:2px s
 .cfg-status.err{background:rgba(232,76,76,.15);color:var(--red)}
 .cfg-status.info{background:rgba(0,158,219,.15);color:var(--un)}
 .cfg-note{font-size:10px;color:var(--muted);margin-top:10px;line-height:1.7;padding-top:10px;border-top:1px solid rgba(0,158,219,0.15)}
-.cfg-note strong{color:var(--text)} .cfg-note a{color:var(--un)}
+.cfg-note strong{color:var(--text)}.cfg-note a{color:var(--un)}
 
-/* HOW-TO STEPS */
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:12px}
-.step{background:rgba(0,158,219,0.05);border:1px solid rgba(0,158,219,0.15);border-radius:6px;padding:10px 12px}
-.step-n{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:var(--un);line-height:1}
-.step-title{font-size:11px;font-weight:600;margin:4px 0 2px}
-.step-body{font-size:10px;color:var(--muted);line-height:1.5}
-.step-body code{background:rgba(0,158,219,0.1);padding:1px 4px;border-radius:2px;font-size:9px}
-
-/* STATUS ROW */
+/* STATUS */
 .srow{display:flex;align-items:center;gap:8px;padding:8px 18px;flex-wrap:wrap}
 .chip{display:flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--border);
   border-radius:20px;padding:3px 10px;font-size:10px;font-family:'IBM Plex Mono',monospace}
@@ -75,14 +63,14 @@ header{background:linear-gradient(135deg,var(--mid),#071527);border-bottom:2px s
 .chip.loading{border-color:rgba(0,158,219,.4);color:var(--un)}
 .chip.warn{border-color:rgba(245,166,35,.4);color:var(--amber)}
 
-/* PROGRESS BAR */
-.progress-wrap{padding:0 18px 6px;display:none}
-.progress-wrap.show{display:block}
-.progress-bar{height:3px;background:rgba(0,158,219,0.15);border-radius:2px;overflow:hidden}
-.progress-fill{height:100%;background:var(--un);border-radius:2px;width:0;transition:width .4s ease}
-.progress-label{font-size:9px;color:var(--muted);margin-top:3px;font-family:'IBM Plex Mono',monospace}
+/* PROGRESS */
+.prog-wrap{padding:0 18px 6px;display:none}
+.prog-wrap.show{display:block}
+.prog-bar{height:3px;background:rgba(0,158,219,0.15);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--un);border-radius:2px;width:0;transition:width .4s ease}
+.prog-lbl{font-size:9px;color:var(--muted);margin-top:3px;font-family:'IBM Plex Mono',monospace}
 
-/* DASHBOARD */
+/* KPIs */
 .dash{padding:10px 18px 22px;display:grid;gap:12px}
 .krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px}
 .kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:13px 15px;
@@ -100,6 +88,8 @@ header{background:linear-gradient(135deg,var(--mid),#071527);border-bottom:2px s
 .ldot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px;animation:pulse 2s infinite}
 .sdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--un);margin-right:4px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CHARTS */
 .cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px}
 .cc{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:15px;backdrop-filter:blur(8px)}
 .ctitle{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
@@ -107,6 +97,8 @@ header{background:linear-gradient(135deg,var(--mid),#071527);border-bottom:2px s
 .csrc{font-size:9px;color:rgba(138,154,181,.5);margin-top:8px;line-height:1.4}
 .csrc a{color:var(--un);text-decoration:none}.csrc a:hover{text-decoration:underline}
 canvas{max-height:200px}
+
+/* ALERTS */
 .alerts{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:9px}
 .ac{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:13px 15px;border-left:3px solid}
 .ac.crit{border-left-color:var(--red)}.ac.warn{border-left-color:var(--amber)}
@@ -114,12 +106,19 @@ canvas{max-height:200px}
 .atag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;margin-bottom:5px}
 .atag.crit{color:var(--red)}.atag.warn{color:var(--amber)}.atag.info{color:var(--un)}.atag.pos{color:var(--green)}
 .atext{font-size:11px;line-height:1.5}
+
 footer{margin:6px 18px 18px;padding:11px 15px;background:var(--card);border:1px solid var(--border);
   border-radius:8px;font-size:10px;color:var(--muted);line-height:1.9}
 footer a{color:var(--un)} footer strong{color:var(--text)}
 .spin{display:inline-block;width:9px;height:9px;border:2px solid rgba(255,255,255,.2);
   border-top-color:var(--un);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* RAW DATA DEBUG */
+.debug-panel{margin:0 18px 10px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,158,219,0.2);
+  border-radius:6px;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:9px;
+  color:var(--muted);display:none;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+.debug-panel.show{display:block}
 </style>
 </head>
 <body>
@@ -147,30 +146,6 @@ footer a{color:var(--un)} footer strong{color:var(--text)}
     <span class="cfg-toggle" id="cfgLbl">▼ expand</span>
   </div>
   <div class="cfg-body" id="cfgBody">
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-n">1</div>
-        <div class="step-title">Create your Google Sheet</div>
-        <div class="step-body">3 tabs: <code>KPIs</code>, <code>CPI</code>, <code>Fuel</code> — see column format in the hints below</div>
-      </div>
-      <div class="step">
-        <div class="step-n">2</div>
-        <div class="step-title">Publish to web as CSV</div>
-        <div class="step-body">File → Share → Publish to web → select each tab → <code>CSV</code> → Publish → copy URL</div>
-      </div>
-      <div class="step">
-        <div class="step-n">3</div>
-        <div class="step-title">Paste URLs below</div>
-        <div class="step-body">One URL per tab. Click <strong>Save &amp; Reload</strong>. Saved in browser — one-time setup.</div>
-      </div>
-      <div class="step">
-        <div class="step-n">4</div>
-        <div class="step-title">Boss edits Sheet only</div>
-        <div class="step-body">Dashboard reads the sheet via Claude AI on every Refresh — no HTML edits ever again.</div>
-      </div>
-    </div>
-
     <div class="cfg-grid">
       <div class="cfg-field">
         <label>KPIs Tab — CSV URL</label>
@@ -181,29 +156,36 @@ footer a{color:var(--un)} footer strong{color:var(--text)}
       <div class="cfg-field">
         <label>CPI Chart Tab — CSV URL</label>
         <input type="text" id="url-cpi" placeholder="https://docs.google.com/spreadsheets/d/…/pub?gid=1&single=true&output=csv">
-        <div class="cfg-hint">Columns: <code>month</code> <code>transport</code> <code>food</code> <code>other</code><br>
-          One row per month. Values = percentage-point contributions (YoY%).</div>
+        <div class="cfg-hint">Columns: <code>month</code> <code>transport</code> <code>food</code> <code>other</code></div>
       </div>
       <div class="cfg-field">
         <label>Fuel Prices Tab — CSV URL</label>
         <input type="text" id="url-fuel" placeholder="https://docs.google.com/spreadsheets/d/…/pub?gid=2&single=true&output=csv">
-        <div class="cfg-hint">Columns: <code>date</code> <code>petrol_vte</code> <code>diesel_vte</code> <code>platts_p</code> <code>platts_d</code><br>
-          Values = index numbers (27 Feb = 100).</div>
+        <div class="cfg-hint">Columns: <code>date</code> <code>petrol_vte</code> <code>diesel_vte</code> <code>platts_p</code> <code>platts_d</code></div>
       </div>
     </div>
-
     <div class="cfg-actions">
       <button class="btn btn-green" onclick="saveCfgAndReload()">Save &amp; Reload</button>
-      <button class="btn btn-ghost" style="font-size:10px" onclick="clearCfg()">Clear saved URLs</button>
+      <button class="btn btn-ghost" style="font-size:10px;border-color:rgba(39,174,96,0.5);color:#27AE60" onclick="testUrls()">🔍 Test URLs now</button>
+      <button class="btn btn-ghost" style="font-size:10px" onclick="clearCfg()">Clear URLs</button>
       <span class="cfg-status" id="cfgStatus"></span>
     </div>
-
+    <!-- TEST RESULTS PANEL -->
+    <div id="testResults" style="display:none;margin-top:12px;background:rgba(0,0,0,0.4);border:1px solid rgba(0,158,219,0.3);border-radius:6px;padding:12px;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.8;max-height:300px;overflow-y:auto"></div>
     <div class="cfg-note">
-      <strong>How it works:</strong> When you click Refresh, Claude AI fetches the Google Sheet CSV on the server side (bypassing browser CORS restrictions) and returns the data to this dashboard. Your boss only ever edits the Google Sheet — the dashboard updates automatically on the next Refresh.<br>
-      <strong>Need help?</strong> See <a href="https://support.google.com/docs/answer/183965" target="_blank">Google's guide to publishing sheets</a>.
+      <strong>How Google Sheets updating works:</strong>
+      The dashboard fetches your sheet CSV URLs directly using <code>fetch()</code> in the browser — no server needed.
+      Google Sheets published CSVs include a <code>cache-busting</code> timestamp so each refresh gets the latest data.
+      Make sure your sheet is published: <strong>File → Share → Publish to web → [Tab] → CSV → Publish</strong>.<br>
+      <strong>Troubleshooting:</strong> If updates aren't showing, open the URL in a new browser tab to confirm the CSV shows your latest data.
+      Also ensure the sheet tab is published (not just the whole document).<br>
+      <a href="https://support.google.com/docs/answer/183965" target="_blank">Google publishing guide →</a>
     </div>
   </div>
 </div>
+
+<!-- DEBUG LOG -->
+<div class="debug-panel" id="debugPanel">Fetch log will appear here…</div>
 
 <!-- STATUS -->
 <div class="srow">
@@ -211,9 +193,9 @@ footer a{color:var(--un)} footer strong{color:var(--text)}
   <div class="chip warn" id="chip-sheets">Sheets: not configured</div>
   <div class="chip warn" id="chip-mode">Mode: built-in data</div>
 </div>
-<div class="progress-wrap" id="progressWrap">
-  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="progress-label" id="progressLabel">Asking Claude AI…</div>
+<div class="prog-wrap" id="progWrap">
+  <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+  <div class="prog-lbl" id="progLbl">Loading…</div>
 </div>
 
 <div class="dash">
@@ -245,26 +227,26 @@ footer a{color:var(--un)} footer strong{color:var(--text)}
     <div class="kpi amber">
       <div class="klbl"><span class="sdot"></span>Petrol – Vientiane</div>
       <div class="kval amber" id="kv-petrol">34,400</div>
-      <div class="ksub" id="ks-petrol">LAK/L · 1 May 2026 · ↓19% from peak</div>
+      <div class="ksub" id="ks-petrol">LAK/L · update via Google Sheet</div>
       <div class="ksrc"><a href="https://www.lsfc.gov.la" target="_blank">Lao State Fuel Company</a></div>
     </div>
     <div class="kpi amber">
       <div class="klbl"><span class="sdot"></span>Diesel – Vientiane</div>
       <div class="kval amber" id="kv-diesel">39,400</div>
-      <div class="ksub" id="ks-diesel">LAK/L · 1 May 2026 · ↓25% from peak</div>
+      <div class="ksub" id="ks-diesel">LAK/L · update via Google Sheet</div>
       <div class="ksrc"><a href="https://www.lsfc.gov.la" target="_blank">Lao State Fuel Company</a></div>
     </div>
     <div class="kpi green">
       <div class="klbl"><span class="sdot"></span>FX Reserves</div>
       <div class="kval green" id="kv-fx">$4.2B</div>
-      <div class="ksub" id="ks-fx">March 2026 · ≈4.0 months imports</div>
+      <div class="ksub" id="ks-fx">update via Google Sheet</div>
       <div class="ksrc"><a href="https://www.bol.gov.la/statistics/BOP6_Lao%20PDR.xlsx" target="_blank">Bank of Lao PDR</a></div>
     </div>
     <div class="kpi teal">
       <div class="klbl"><span class="sdot"></span>GDP Growth 2026</div>
       <div class="kval teal" id="kv-gdp">4.0%</div>
       <div class="ksub" id="ks-gdp">IMF/ADB · WB: 3.5%</div>
-      <div class="ksrc"><a href="https://www.imf.org/external/datamapper/datasets/WEO" target="_blank">IMF WEO</a> / <a href="https://www.adb.org/publications/asian-development-outlook-april-2026" target="_blank">ADB ADO Apr 2026</a></div>
+      <div class="ksrc"><a href="https://www.imf.org/external/datamapper/datasets/WEO" target="_blank">IMF WEO</a> / <a href="https://www.adb.org/publications/asian-development-outlook-april-2026" target="_blank">ADB ADO</a></div>
     </div>
   </div>
 
@@ -273,7 +255,7 @@ footer a{color:var(--un)} footer strong{color:var(--text)}
       <div class="ctitle"><span class="ldot"></span>Crude Oil Prices (Live)</div>
       <div class="csub">Brent &amp; WTI · USD/bbl · recent trend</div>
       <canvas id="chartCrude"></canvas>
-      <div class="csrc">Via Claude AI server-side fetch →
+      <div class="csrc">Via Claude AI →
         <a href="https://finance.yahoo.com/quote/BZ%3DF/history/" target="_blank">Yahoo Finance BZ=F</a> &amp;
         <a href="https://finance.yahoo.com/quote/CL%3DF/history/" target="_blank">CL=F</a>
       </div>
@@ -283,21 +265,20 @@ footer a{color:var(--un)} footer strong{color:var(--text)}
       <div class="csub">Report-period range + live spot</div>
       <canvas id="chartFX"></canvas>
       <div class="csrc">Live spot via Claude AI →
-        <a href="https://open.er-api.com/v6/latest/USD" target="_blank">ExchangeRate-API</a> |
-        History: <a href="https://www.bol.gov.la/statistics/BOP6_Lao%20PDR.xlsx" target="_blank">Bank of Lao PDR</a>
+        <a href="https://open.er-api.com/v6/latest/USD" target="_blank">ExchangeRate-API</a>
       </div>
     </div>
     <div class="cc">
       <div class="ctitle" id="cpi-title"><span class="sdot"></span>CPI by Component (YoY%)</div>
       <div class="csub" id="cpi-sub">Apr 2025 – Apr 2026</div>
       <canvas id="chartCPI"></canvas>
-      <div class="csrc"><a href="https://www.lsb.gov.la" target="_blank">Lao Statistics Bureau CPI Apr 2026</a> — update via Google Sheet</div>
+      <div class="csrc"><a href="https://www.lsb.gov.la" target="_blank">Lao Statistics Bureau</a> — update via Google Sheet</div>
     </div>
     <div class="cc">
       <div class="ctitle" id="fuel-title"><span class="sdot"></span>Fuel Retail Prices – Vientiane</div>
       <div class="csub" id="fuel-sub">Indexed (27 Feb = 100)</div>
       <canvas id="chartFuel"></canvas>
-      <div class="csrc"><a href="https://www.lsfc.gov.la" target="_blank">Lao State Fuel Company</a> &amp; Platts — update via Google Sheet</div>
+      <div class="csrc"><a href="https://www.lsfc.gov.la" target="_blank">Lao State Fuel Company</a> — update via Google Sheet</div>
     </div>
   </div>
 
@@ -321,33 +302,33 @@ footer a{color:var(--un)} footer strong{color:var(--text)}
   <a href="https://iea.blob.core.windows.net/assets/515f3128-df1a-4d6c-beb4-fd91d2434bef/-14APR2026_OilMarketReport_Free_version1.pdf" target="_blank">IEA Oil Market Report</a> |
   <a href="https://www.imf.org/-/media/files/publications/weo/2026/april/english/text.pdf" target="_blank">IMF WEO Apr 2026</a> |
   <a href="https://www.adb.org/publications/asian-development-outlook-april-2026" target="_blank">ADB ADO Apr 2026</a> |
-  <a href="https://openknowledge.worldbank.org/entities/publication/57bcd2e6-2e35-4032-9a0d-a07562811f11" target="_blank">World Bank</a> |
   <a href="https://www.wfp.org/publications/projected-increase-acute-food-insecurity-due-middle-east-conflict" target="_blank">WFP Food Security</a> |
   <a href="https://kpl.gov.la/en/detail.aspx/detail.aspx?id=98916" target="_blank">KPL Tourism Data</a>
   &nbsp;|&nbsp; <strong>UN Lao PDR:</strong> <a href="https://laopdr.un.org" target="_blank">laopdr.un.org</a>
 </footer>
 
 <script>
-// ═══════════════════════════════════════════════════════
-//  BUILT-IN FALLBACK DATA  (from Situation Update No.2)
-// ═══════════════════════════════════════════════════════
-const FB_CPI={
-  labels:['Apr-25','May-25','Jun-25','Jul-25','Aug-25','Sep-25','Oct-25','Nov-25','Dec-25','Jan-26','Feb-26','Mar-26','Apr-26'],
-  transport:[0.0,0.1,0.1,0.1,0.1,0.1,0.2,0.2,0.3,0.4,1.5,7.2,5.4],
-  food:[2.0,1.8,1.6,1.4,1.3,1.2,1.1,1.0,1.0,1.0,1.1,1.3,1.8],
-  other:[1.0,1.0,0.9,0.8,0.7,0.7,0.6,0.6,0.6,0.7,0.7,0.8,1.2]
-};
-const FB_FUEL={
-  labels:['27-Feb','4-Mar','11-Mar','18-Mar','25-Mar','1-Apr','7-Apr','13-Apr','20-Apr','27-Apr','1-May'],
-  petrol:[100,125,148,155,162,175,190,185,170,158,142],
-  diesel:[100,130,160,195,230,260,275,255,220,195,165],
-  plattsP:[100,145,200,260,310,300,270,235,200,170,145],
-  plattsD:[100,150,220,310,340,295,250,185,140,120,100]
-};
-const FB_CRUDE={
-  labels:['27-Feb','8-Mar','17-Mar','26-Mar','4-Apr','13-Apr','22-Apr','1-May'],
-  brent:[82,90,98,112,126,118,110,104],
-  wti:[78,85,92,105,112,106,99,95]
+// ══════════════════════════════════════════════════
+//  BUILT-IN FALLBACK DATA (Situation Update No.2)
+// ══════════════════════════════════════════════════
+const FB={
+  cpi:{
+    labels:['Apr-25','May-25','Jun-25','Jul-25','Aug-25','Sep-25','Oct-25','Nov-25','Dec-25','Jan-26','Feb-26','Mar-26','Apr-26'],
+    transport:[0.0,0.1,0.1,0.1,0.1,0.1,0.2,0.2,0.3,0.4,1.5,7.2,5.4],
+    food:[2.0,1.8,1.6,1.4,1.3,1.2,1.1,1.0,1.0,1.0,1.1,1.3,1.8],
+    other:[1.0,1.0,0.9,0.8,0.7,0.7,0.6,0.6,0.6,0.7,0.7,0.8,1.2]
+  },
+  fuel:{
+    labels:['27-Feb','4-Mar','11-Mar','18-Mar','25-Mar','1-Apr','7-Apr','13-Apr','20-Apr','27-Apr','1-May'],
+    petrol:[100,125,148,155,162,175,190,185,170,158,142],
+    diesel:[100,130,160,195,230,260,275,255,220,195,165],
+    plattsP:[100,145,200,260,310,300,270,235,200,170,145],
+    plattsD:[100,150,220,310,340,295,250,185,140,120,100]
+  },
+  crude:{
+    labels:['27-Feb','8-Mar','17-Mar','26-Mar','4-Apr','13-Apr','22-Apr','1-May'],
+    brent:[82,90,98,112,126,118,110,104],wti:[78,85,92,105,112,106,99,95]
+  }
 };
 
 Chart.defaults.color='#8A9AB5';
@@ -355,7 +336,17 @@ Chart.defaults.borderColor='rgba(0,158,219,0.1)';
 Chart.defaults.font.family="'IBM Plex Mono',monospace";
 Chart.defaults.font.size=10;
 
-// ── CONFIG ────────────────────────────────────────────────────────
+// ── DEBUG LOG ─────────────────────────────────────
+let debugLog=[];
+let debugVisible=false;
+function log(msg){ debugLog.push('['+new Date().toLocaleTimeString()+'] '+msg); updateDebug(); }
+function updateDebug(){ document.getElementById('debugPanel').textContent=debugLog.slice(-30).join('\n'); }
+function toggleDebug(){
+  debugVisible=!debugVisible;
+  document.getElementById('debugPanel').className='debug-panel'+(debugVisible?' show':'');
+}
+
+// ── CONFIG ────────────────────────────────────────
 let cfgOpen=false;
 function toggleCfg(){
   cfgOpen=!cfgOpen;
@@ -364,11 +355,7 @@ function toggleCfg(){
   if(cfgOpen) loadUrlsIntoForm();
 }
 function getUrls(){
-  return{
-    kpis:localStorage.getItem('sh_kpis')||'',
-    cpi: localStorage.getItem('sh_cpi') ||'',
-    fuel:localStorage.getItem('sh_fuel')||''
-  };
+  return{kpis:localStorage.getItem('sh_kpis')||'',cpi:localStorage.getItem('sh_cpi')||'',fuel:localStorage.getItem('sh_fuel')||''};
 }
 function loadUrlsIntoForm(){
   const u=getUrls();
@@ -377,34 +364,123 @@ function loadUrlsIntoForm(){
   document.getElementById('url-fuel').value=u.fuel;
 }
 function saveCfgAndReload(){
-  const kpis=document.getElementById('url-kpis').value.trim();
-  const cpi=document.getElementById('url-cpi').value.trim();
-  const fuel=document.getElementById('url-fuel').value.trim();
-  if(kpis) localStorage.setItem('sh_kpis',kpis);
-  if(cpi)  localStorage.setItem('sh_cpi',cpi);
-  if(fuel) localStorage.setItem('sh_fuel',fuel);
+  ['kpis','cpi','fuel'].forEach(k=>{
+    const v=document.getElementById('url-'+k).value.trim();
+    if(v) localStorage.setItem('sh_'+k,v); else localStorage.removeItem('sh_'+k);
+  });
   setCS('Saved! Reloading…','info');
   toggleCfg();
   initDashboard();
 }
 function clearCfg(){
   ['sh_kpis','sh_cpi','sh_fuel'].forEach(k=>localStorage.removeItem(k));
-  loadUrlsIntoForm();
-  setCS('Cleared.','info');
+  loadUrlsIntoForm(); setCS('Cleared.','info');
 }
-function setCS(msg,type){const e=document.getElementById('cfgStatus');e.textContent=msg;e.className='cfg-status '+(type||'');}
+function setCS(msg,t){const e=document.getElementById('cfgStatus');e.textContent=msg;e.className='cfg-status '+(t||'');}
 
-// ── CHIPS & PROGRESS ─────────────────────────────────────────────
+async function testUrls(){
+  const panel=document.getElementById('testResults');
+  panel.style.display='block';
+  panel.innerHTML='<span style="color:#009EDB">Running URL testsu2026</span>\n\n';
+  setCS('Testingu2026','info');
+  const labels=['KPIs','CPI','Fuel'];
+  const ids=['url-kpis','url-cpi','url-fuel'];
+  const expectedKeys=[['key','value'],['month','transport'],['date','petrol_vte']];
+  for(let i=0;i<3;i++){
+    const url=document.getElementById(ids[i]).value.trim();
+    const label=labels[i];
+    panel.innerHTML+='<span style="color:#F5A623">u2500u2500 '+label+' tab u2500u2500</span>\n';
+    if(!url){panel.innerHTML+='<span style="color:#E84C4C">u2717 No URL entered</span>\n\n';continue;}
+    const gidMatch=url.match(/[?&]gid=(\d+)/);
+    const gid=gidMatch?gidMatch[1]:'NOT FOUND IN URL';
+    panel.innerHTML+='URL: '+url.slice(0,80)+'\ngid detected: <span style="color:'+(gid==='NOT FOUND IN URL'?'#E84C4C':'#27AE60')+'">'+gid+'</span>\n';
+    const bustUrl=url.replace(/[?&]output=[^&]*/g,'').replace(/[?&]single=[^&]*/g,'')+(url.includes('?')?'&':'?')+'output=csv&single=true&t='+Date.now();
+    try{
+      panel.innerHTML+='Fetchingu2026\n';
+      const res=await fetch(bustUrl,{method:'GET',mode:'cors',cache:'no-store'});
+      panel.innerHTML+='HTTP status: <span style="color:'+(res.ok?'#27AE60':'#E84C4C')+'">'+res.status+' '+res.statusText+'</span>\n';
+      if(!res.ok){panel.innerHTML+='<span style="color:#E84C4C">u2717 Server rejected u2014 re-publish this tab: File u2192 Share u2192 Publish to web u2192 "'+label+'" u2192 CSV u2192 Publish</span>\n\n';continue;}
+      const text=await res.text();
+      if(text.trim().startsWith('<!')){panel.innerHTML+='<span style="color:#E84C4C">u2717 Got HTML not CSV u2014 tab not published or wrong gid</span>\n\n';continue;}
+      const lines=text.trim().split('\n');
+      panel.innerHTML+='Rows: <span style="color:#27AE60">'+lines.length+'</span>\nHeader: <span style="color:#1ABC9C">'+lines[0]+'</span>\n';
+      if(lines.length>1)panel.innerHTML+='Row 1: <span style="color:#1ABC9C">'+lines[1]+'</span>\n';
+      const headers=lines[0].toLowerCase();
+      const missing=expectedKeys[i].filter(k=>!headers.includes(k));
+      panel.innerHTML+=(missing.length?'<span style="color:#E84C4C">u2717 Missing columns: '+missing.join(', ')+'</span>':'<span style="color:#27AE60">u2713 Columns OK</span>')+'\n\n';
+    }catch(e){panel.innerHTML+='<span style="color:#E84C4C">u2717 '+e.message+'</span>\n\n';}
+  }
+  panel.innerHTML+='<span style="color:#009EDB">u2500u2500 Done u2500u2500</span>';
+  setCS('Tests complete','ok');
+  panel.scrollTop=panel.scrollHeight;
+}
+
 function chip(id,text,type){const e=document.getElementById(id);e.textContent=text;e.className='chip '+(type||'');}
 function setProgress(pct,label){
-  const w=document.getElementById('progressWrap');
-  w.className='progress-wrap show';
-  document.getElementById('progressFill').style.width=pct+'%';
-  document.getElementById('progressLabel').textContent=label;
-  if(pct>=100) setTimeout(()=>w.className='progress-wrap',1200);
+  const w=document.getElementById('progWrap'); w.className='prog-wrap show';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progLbl').textContent=label;
+  if(pct>=100) setTimeout(()=>w.className='prog-wrap',1500);
 }
 
-// ── CHART INSTANCES ───────────────────────────────────────────────
+// ── CSV PARSER ────────────────────────────────────
+function parseCSV(text){
+  const lines=text.trim().split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2) return [];
+  // Handle quoted fields
+  function splitLine(line){
+    const result=[]; let cur=''; let inQ=false;
+    for(let i=0;i<line.length;i++){
+      if(line[i]==='"'){ inQ=!inQ; }
+      else if(line[i]===',' && !inQ){ result.push(cur.trim()); cur=''; }
+      else { cur+=line[i]; }
+    }
+    result.push(cur.trim());
+    return result;
+  }
+  const headers=splitLine(lines[0]).map(h=>h.replace(/^"|"$/g,'').toLowerCase().trim());
+  return lines.slice(1).map(line=>{
+    const vals=splitLine(line);
+    const row={};
+    headers.forEach((h,i)=>{ row[h]=(vals[i]||'').replace(/^"|"$/g,'').trim(); });
+    return row;
+  }).filter(r=>Object.values(r).some(v=>v));
+}
+
+// ══════════════════════════════════════════════════
+//  GOOGLE SHEETS: fetch directly from browser
+//  Google published CSVs DO allow CORS from any origin
+//  Key: add cache-busting param so browser doesn't
+//  serve stale cached version
+// ══════════════════════════════════════════════════
+async function fetchSheetCSV(url){
+  if(!url) return null;
+  // Strip any existing output param and force csv + cache bust
+  const base=url.split('&output=')[0].split('?output=')[0];
+  const sep=base.includes('?')?'&':'?';
+  const bustUrl=base+sep+'output=csv&t='+Date.now();
+  log('Fetching: '+bustUrl.slice(0,80)+'…');
+  try{
+    const res=await fetch(bustUrl,{
+      method:'GET',
+      mode:'cors',
+      cache:'no-store',
+      headers:{'Accept':'text/csv,text/plain,*/*'}
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status+' '+res.statusText);
+    const text=await res.text();
+    if(!text||text.trim().length<5) throw new Error('Empty response');
+    // Check we got CSV not an HTML error page
+    if(text.trim().startsWith('<!')) throw new Error('Got HTML instead of CSV — check sheet is published');
+    log('OK: '+text.split('\n').length+' rows received');
+    return parseCSV(text);
+  }catch(e){
+    log('FAILED: '+e.message);
+    return null;
+  }
+}
+
+// ── CHARTS ────────────────────────────────────────
 const CH={};
 function dc(id){if(CH[id]){CH[id].destroy();delete CH[id];}}
 
@@ -463,205 +539,160 @@ function buildFX(liveLak){
     options:{responsive:true,maintainAspectRatio:true,
       plugins:{legend:{display:false}},
       scales:{x:{grid:{display:false}},
-        y:{title:{display:true,text:'LAK per USD',font:{size:9}},
-          ticks:{callback:v=>v.toLocaleString()},min:21200,max:Math.max(22400,(liveLak||22000)+400)}}}
+        y:{ticks:{callback:v=>v.toLocaleString()},min:21200,max:Math.max(22400,(liveLak||22000)+400)}}}
   });
 }
 
-// ── SAFE JSON EXTRACT ─────────────────────────────────────────────
-function extractJSON(text){
-  // Try direct parse first
-  try{ return JSON.parse(text); }catch(_){}
-  // Find JSON object in text
-  const m=text.match(/\{[\s\S]*\}/);
-  if(m){ try{ return JSON.parse(m[0]); }catch(_){} }
-  return null;
+// ── APPLY SHEET DATA ──────────────────────────────
+function applyKPISheet(rows){
+  if(!rows||!rows.length){ log('KPIs: no rows'); return 0; }
+  log('KPIs: applying '+rows.length+' rows');
+  const map={};
+  rows.forEach(r=>{ const k=(r.key||r.Key||'').trim(); if(k) map[k]=r; });
+  log('KPI keys found: '+Object.keys(map).join(', '));
+  const set=(key,vid,sid)=>{
+    const r=map[key];
+    if(r){
+      const val=(r.value||r.Value||'').trim();
+      const sub=(r.sub||r.Sub||'').trim();
+      if(val){ document.getElementById(vid).textContent=val; log('Set '+vid+' = '+val); }
+      if(sub&&sid){ document.getElementById(sid).textContent=sub; }
+    } else { log('Key not found: '+key); }
+  };
+  set('cpi_inflation','kv-cpi','ks-cpi');
+  set('petrol_lak','kv-petrol','ks-petrol');
+  set('diesel_lak','kv-diesel','ks-diesel');
+  set('fx_reserves','kv-fx','ks-fx');
+  set('gdp_forecast','kv-gdp','ks-gdp');
+  return 1;
 }
 
-// ═══════════════════════════════════════════════════════
-//  SINGLE CLAUDE API CALL — fetches everything at once
-// ═══════════════════════════════════════════════════════
-async function fetchAllViaClaude(sheetUrls){
-  const hasSheets=sheetUrls.kpis||sheetUrls.cpi||sheetUrls.fuel;
-
-  const sheetInstructions=hasSheets?`
-Also fetch these Google Sheets CSV URLs and parse them:
-- KPIs CSV: ${sheetUrls.kpis||'NOT PROVIDED'}
-- CPI CSV: ${sheetUrls.cpi||'NOT PROVIDED'}
-- Fuel CSV: ${sheetUrls.fuel||'NOT PROVIDED'}
-
-For each URL that is provided and fetchable, parse the CSV and include the data.
-KPIs CSV has columns: key, value, sub, source
-CPI CSV has columns: month, transport, food, other
-Fuel CSV has columns: date, petrol_vte, diesel_vte, platts_p, platts_d
-
-Include parsed data in the "sheets" field. If a URL is not provided or fails, use null for that field.`:'';
-
-  const prompt=`You are a financial data and web fetching assistant. Return ONLY a valid JSON object with no markdown formatting, no backticks, no explanation.
-
-Provide current financial market data and${hasSheets?' parse the Google Sheets CSVs below':' sheet data will not be needed'}:
-
-{
-  "prices": {
-    "brent_usd": <current Brent crude price USD/bbl as number>,
-    "wti_usd": <current WTI crude price USD/bbl as number>,
-    "usd_lak": <current USD to Lao Kip rate as number>,
-    "brent_history": [<array of 12 recent daily Brent prices, oldest first, numbers>],
-    "wti_history": [<array of 12 recent daily WTI prices, oldest first, numbers>],
-    "date_labels": [<array of 12 date labels like "May 12" matching history arrays>],
-    "as_of": "<YYYY-MM-DD>"
-  },
-  "sheets": {
-    "kpis": <array of {key,value,sub,source} objects from KPIs CSV, or null>,
-    "cpi": <array of {month,transport,food,other} objects from CPI CSV, or null>,
-    "fuel": <array of {date,petrol_vte,diesel_vte,platts_p,platts_d} objects from Fuel CSV, or null>
-  }
+function applyCPISheet(rows){
+  if(!rows||!rows.length){ log('CPI: no rows, using fallback'); buildCPI(FB.cpi); return 0; }
+  log('CPI: applying '+rows.length+' rows');
+  buildCPI({
+    labels: rows.map(r=>r.month||r.Month||Object.values(r)[0]||''),
+    transport: rows.map(r=>parseFloat(r.transport||r.Transport)||0),
+    food: rows.map(r=>parseFloat(r.food||r.Food)||0),
+    other: rows.map(r=>parseFloat(r.other||r.Other)||0)
+  });
+  document.getElementById('cpi-sub').textContent='Live from Google Sheets';
+  return 1;
 }
-${sheetInstructions}
-Return ONLY the JSON object. No other text.`;
 
+function applyFuelSheet(rows){
+  if(!rows||!rows.length){ log('Fuel: no rows, using fallback'); buildFuel(FB.fuel); return 0; }
+  log('Fuel: applying '+rows.length+' rows');
+  buildFuel({
+    labels: rows.map(r=>r.date||r.Date||Object.values(r)[0]||''),
+    petrol: rows.map(r=>parseFloat(r.petrol_vte||r.Petrol_VTE||r['petrol vte'])||0),
+    diesel: rows.map(r=>parseFloat(r.diesel_vte||r.Diesel_VTE||r['diesel vte'])||0),
+    plattsP: rows.map(r=>parseFloat(r.platts_p||r.Platts_P||r['platts p'])||0),
+    plattsD: rows.map(r=>parseFloat(r.platts_d||r.Platts_D||r['platts d'])||0)
+  });
+  document.getElementById('fuel-sub').textContent='Live from Google Sheets';
+  return 1;
+}
+
+// ══════════════════════════════════════════════════
+//  LIVE PRICES via Anthropic API
+// ══════════════════════════════════════════════════
+async function fetchLivePrices(){
+  log('Fetching live prices via Claude API…');
   const res=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       model:'claude-sonnet-4-20250514',
-      max_tokens:2000,
-      tools:[{type:'web_search_20250305',name:'web_search'}],
-      messages:[{role:'user',content:prompt}]
+      max_tokens:800,
+      messages:[{role:'user',content:`Return ONLY a valid JSON object, no markdown, no backticks, no explanation whatsoever. Just the raw JSON starting with {
+
+{
+  "brent_usd": <number: current Brent crude price USD per barrel>,
+  "wti_usd": <number: current WTI crude price USD per barrel>,
+  "usd_lak": <number: current USD to Lao Kip exchange rate>,
+  "brent_history": [<array of 12 numbers: recent daily Brent prices oldest first>],
+  "wti_history": [<array of 12 numbers: recent daily WTI prices oldest first>],
+  "date_labels": [<array of 12 strings: date labels like "May 12" matching history>],
+  "as_of": "<YYYY-MM-DD today's date>"
+}`}]
     })
   });
-
-  if(!res.ok) throw new Error('Anthropic API returned HTTP '+res.status);
+  if(!res.ok) throw new Error('API HTTP '+res.status);
   const data=await res.json();
-
-  // Extract text from response (may include tool_use blocks)
-  const textBlock=data.content.find(b=>b.type==='text');
-  if(!textBlock) throw new Error('No text block in API response');
-
-  const parsed=extractJSON(textBlock.text);
-  if(!parsed) throw new Error('Could not parse JSON from response: '+textBlock.text.slice(0,200));
-  return parsed;
+  const text=(data.content||[]).find(b=>b.type==='text')?.text||'';
+  log('API response length: '+text.length+' chars');
+  // Extract JSON — find first { to last }
+  const start=text.indexOf('{'); const end=text.lastIndexOf('}');
+  if(start===-1||end===-1) throw new Error('No JSON found in response');
+  const json=JSON.parse(text.slice(start,end+1));
+  log('Prices OK: Brent=$'+json.brent_usd+' WTI=$'+json.wti_usd+' LAK='+json.usd_lak);
+  return json;
 }
 
-// ── APPLY DATA TO UI ─────────────────────────────────────────────
-function applyPrices(p){
-  document.getElementById('kv-brent').textContent='$'+Number(p.brent_usd).toFixed(0);
-  document.getElementById('ks-brent').textContent=`USD/bbl · ${p.as_of} · Report ref: ~$126`;
-  document.getElementById('kv-wti').textContent='$'+Number(p.wti_usd).toFixed(0);
-  document.getElementById('ks-wti').textContent=`USD/bbl · ${p.as_of} · Report ref: ~$110`;
-  document.getElementById('kv-lak').textContent=Math.round(p.usd_lak).toLocaleString();
-  document.getElementById('ks-lak').textContent=`LAK per USD · ${p.as_of} · Report range: 21,400–22,200`;
-  buildCrude({labels:p.date_labels,brent:p.brent_history,wti:p.wti_history});
-  buildFX(Math.round(p.usd_lak));
-}
-
-function applySheets(sheets){
-  let loaded=0;
-
-  // KPIs
-  if(sheets.kpis && sheets.kpis.length){
-    const map={};
-    sheets.kpis.forEach(r=>{ if(r.key) map[r.key.trim()]=r; });
-    const set=(key,vid,sid)=>{
-      if(map[key]){
-        document.getElementById(vid).textContent=map[key].value||'';
-        if(sid) document.getElementById(sid).textContent=map[key].sub||'';
-      }
-    };
-    set('cpi_inflation','kv-cpi','ks-cpi');
-    set('petrol_lak','kv-petrol','ks-petrol');
-    set('diesel_lak','kv-diesel','ks-diesel');
-    set('fx_reserves','kv-fx','ks-fx');
-    set('gdp_forecast','kv-gdp','ks-gdp');
-    loaded++;
-  }
-
-  // CPI chart
-  if(sheets.cpi && sheets.cpi.length){
-    buildCPI({
-      labels: sheets.cpi.map(r=>r.month||Object.values(r)[0]),
-      transport: sheets.cpi.map(r=>parseFloat(r.transport)||0),
-      food: sheets.cpi.map(r=>parseFloat(r.food)||0),
-      other: sheets.cpi.map(r=>parseFloat(r.other)||0)
-    });
-    document.getElementById('cpi-sub').textContent='Live from Google Sheets';
-    loaded++;
-  } else { buildCPI(FB_CPI); }
-
-  // Fuel chart
-  if(sheets.fuel && sheets.fuel.length){
-    buildFuel({
-      labels: sheets.fuel.map(r=>r.date||Object.values(r)[0]),
-      petrol: sheets.fuel.map(r=>parseFloat(r.petrol_vte)||0),
-      diesel: sheets.fuel.map(r=>parseFloat(r.diesel_vte)||0),
-      plattsP: sheets.fuel.map(r=>parseFloat(r.platts_p)||0),
-      plattsD: sheets.fuel.map(r=>parseFloat(r.platts_d)||0)
-    });
-    document.getElementById('fuel-sub').textContent='Live from Google Sheets';
-    loaded++;
-  } else { buildFuel(FB_FUEL); }
-
-  return loaded;
-}
-
-// ── MAIN INIT ─────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════
+//  MAIN INIT
+// ══════════════════════════════════════════════════
 async function initDashboard(){
+  debugLog=[];
   document.getElementById('ts').textContent='Refreshing…';
-  setProgress(10,'Connecting to Claude AI…');
-
+  setProgress(5,'Starting…');
   const urls=getUrls();
-  const hasSheets=urls.kpis||urls.cpi||urls.fuel;
-
+  const hasSheets=!!(urls.kpis||urls.cpi||urls.fuel);
   chip('chip-prices','Live prices: fetching…','loading');
-  chip('chip-sheets',hasSheets?'Sheets: fetching via Claude AI…':'Sheets: not configured',hasSheets?'loading':'warn');
-  chip('chip-mode','Mode: loading…','loading');
+  chip('chip-sheets',hasSheets?'Sheets: fetching…':'Sheets: not configured',hasSheets?'loading':'warn');
+  chip('chip-mode','Loading…','loading');
 
-  try{
-    setProgress(30,'Claude AI fetching prices'+(hasSheets?' & sheet data':'')+'…');
-    const result=await fetchAllViaClaude(urls);
-    setProgress(75,'Applying data to dashboard…');
-
-    // Apply live prices
-    if(result.prices){
-      applyPrices(result.prices);
-      chip('chip-prices','Live prices: updated ✓','ok');
-    } else {
-      buildCrude(FB_CRUDE); buildFX(21900);
-      chip('chip-prices','Live prices: unavailable','warn');
-    }
-
-    // Apply sheets
-    if(hasSheets && result.sheets){
-      const loaded=applySheets(result.sheets);
-      chip('chip-sheets',loaded>0?`Sheets: ${loaded} tab(s) loaded ✓`:'Sheets: parse failed','ok');
-    } else {
-      if(!hasSheets){ buildCPI(FB_CPI); buildFuel(FB_FUEL); }
-      chip('chip-sheets',hasSheets?'Sheets: no data returned':'Sheets: not configured',hasSheets?'warn':'warn');
-    }
-
-    chip('chip-mode',hasSheets?'Mode: Google Sheets + live prices':'Mode: live prices + built-in data','ok');
-    setProgress(100,'Done!');
-
-  } catch(e){
-    console.error('Dashboard fetch error:',e);
-    // Full fallback
-    document.getElementById('kv-brent').textContent='~$104';
-    document.getElementById('ks-brent').textContent='Indicative — fetch unavailable';
-    document.getElementById('kv-wti').textContent='~$95';
-    document.getElementById('ks-wti').textContent='Indicative — fetch unavailable';
-    document.getElementById('kv-lak').textContent='~21,900';
-    document.getElementById('ks-lak').textContent='Indicative — fetch unavailable';
-    buildCrude(FB_CRUDE); buildFX(21900);
-    buildCPI(FB_CPI); buildFuel(FB_FUEL);
-    chip('chip-prices','Live prices: error — using estimates','err');
-    chip('chip-sheets',hasSheets?'Sheets: error — using built-in data':'Sheets: not configured','err');
-    chip('chip-mode','Mode: built-in data (fetch failed)','err');
-    setProgress(100,'Error — showing built-in data');
-    console.error('Detail:',e.message);
+  // ── STEP 1: Fetch Google Sheets directly (browser fetch, CORS allowed by Google) ──
+  let sheetsLoaded=0;
+  if(hasSheets){
+    setProgress(15,'Fetching Google Sheets…');
+    log('=== SHEETS FETCH ===');
+    const [kpiRows,cpiRows,fuelRows]=await Promise.all([
+      fetchSheetCSV(urls.kpis),
+      fetchSheetCSV(urls.cpi),
+      fetchSheetCSV(urls.fuel)
+    ]);
+    setProgress(50,'Applying sheet data…');
+    sheetsLoaded += applyKPISheet(kpiRows);
+    sheetsLoaded += applyCPISheet(cpiRows);
+    sheetsLoaded += applyFuelSheet(fuelRows);
+    chip('chip-sheets',sheetsLoaded>0?`Sheets: ${sheetsLoaded} tab(s) updated ✓`:'Sheets: fetch failed — check URLs & publishing',sheetsLoaded>0?'ok':'err');
+  } else {
+    buildCPI(FB.cpi); buildFuel(FB.fuel);
   }
 
-  const now=new Date();
-  document.getElementById('ts').textContent='Updated: '+now.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  // ── STEP 2: Live prices via Claude API ──
+  setProgress(60,'Fetching live prices…');
+  log('=== LIVE PRICES ===');
+  try{
+    const p=await fetchLivePrices();
+    document.getElementById('kv-brent').textContent='$'+Number(p.brent_usd).toFixed(0);
+    document.getElementById('ks-brent').textContent=`USD/bbl · ${p.as_of} · Report ref: ~$126`;
+    document.getElementById('kv-wti').textContent='$'+Number(p.wti_usd).toFixed(0);
+    document.getElementById('ks-wti').textContent=`USD/bbl · ${p.as_of} · Report ref: ~$110`;
+    document.getElementById('kv-lak').textContent=Math.round(p.usd_lak).toLocaleString();
+    document.getElementById('ks-lak').textContent=`LAK per USD · ${p.as_of} · Report range: 21,400–22,200`;
+    buildCrude({labels:p.date_labels,brent:p.brent_history,wti:p.wti_history});
+    buildFX(Math.round(p.usd_lak));
+    chip('chip-prices','Live prices: updated ✓','ok');
+    log('Live prices applied OK');
+  }catch(e){
+    log('Live prices FAILED: '+e.message);
+    document.getElementById('kv-brent').textContent='~$104';
+    document.getElementById('ks-brent').textContent='Estimate — live fetch unavailable';
+    document.getElementById('kv-wti').textContent='~$95';
+    document.getElementById('ks-wti').textContent='Estimate — live fetch unavailable';
+    document.getElementById('kv-lak').textContent='~21,900';
+    document.getElementById('ks-lak').textContent='Estimate — live fetch unavailable';
+    buildCrude(FB.crude); buildFX(21900);
+    chip('chip-prices','Live prices: unavailable (estimates shown)','warn');
+  }
+
+  setProgress(100,'Done!');
+  chip('chip-mode',hasSheets&&sheetsLoaded>0?'Mode: Google Sheets + live prices':hasSheets?'Mode: live prices (sheet fetch failed)':'Mode: live prices + built-in data',sheetsLoaded>0?'ok':'warn');
+  document.getElementById('ts').textContent='Updated: '+new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  if(debugVisible) updateDebug();
 }
 
 initDashboard();

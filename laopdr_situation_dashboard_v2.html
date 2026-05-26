@@ -444,17 +444,28 @@ function buildFX(liveLak){
   });
 }
 
-// Add this helper function in your script section
 function applyAlertsSheet(rows) {
   const container = document.getElementById('alerts-container');
-  if (!rows || !rows.length) return;
-  
-  container.innerHTML = rows.map(r => `
-    <div class="ac ${r.type || 'info'}">
-      <div class="atag ${r.type || 'info'}">${r.title || 'Update'}</div>
-      <div class="atext">${r.content || ''}</div>
-    </div>
-  `).join('');
+  if (!rows || !rows.length) { log('Alerts: no rows received'); return 0; }
+
+  const validTypes = ['crit','warn','info','pos'];
+  const html = rows
+    .filter(r => Object.values(r).some(v => v && v.trim()))
+    .map(r => {
+      const type  = (r.type || 'info').trim().toLowerCase();
+      const title = (r.tag  || r.title || 'Update').trim();
+      const text  = (r.text || r.content || '').trim();
+      const safeType = validTypes.includes(type) ? type : 'info';
+      return `<div class="ac ${safeType}"><div class="atag ${safeType}">${title}</div><div class="atext">${text}</div></div>`;
+    }).join('');
+
+  if (html.trim()) {
+    container.innerHTML = html;
+    log('Alerts: rendered ' + rows.length + ' row(s)');
+    return 1;
+  }
+  log('Alerts: rows present but all blank');
+  return 0;
 }
 
 // ── APPLY SHEET DATA ──────────────────────────────
@@ -550,10 +561,10 @@ async function initDashboard(){
       fetchSheetViaAPI(urls.alerts, 'Alerts')
     ]);
     setProgress(50,'Applying sheet data…');
-    sheetsLoaded += applyKPISheet(kpiRows);
-    sheetsLoaded += applyCPISheet(cpiRows);
-    sheetsLoaded += applyFuelSheet(fuelRows);
-    sheetsLoaded += applyAlertsSheet(alertRows);
+    sheetsLoaded += applyKPISheet(kpiRows)    || 0;
+    sheetsLoaded += applyCPISheet(cpiRows)    || 0;
+    sheetsLoaded += applyFuelSheet(fuelRows)  || 0;
+    sheetsLoaded += applyAlertsSheet(alertRows) || 0;
     chip('chip-sheets',sheetsLoaded>0?`Sheets: ${sheetsLoaded} tab(s) updated ✓`:'Sheets: fetch failed — check URLs & publishing',sheetsLoaded>0?'ok':'err');
   } else {
     buildCPI(FB.cpi); buildFuel(FB.fuel);

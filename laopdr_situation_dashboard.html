@@ -175,7 +175,7 @@ footer a{color:var(--un)} footer strong{color:var(--text)}
     <div id="testResults" style="display:none;margin-top:12px;background:rgba(0,0,0,0.4);border:1px solid rgba(0,158,219,0.3);border-radius:6px;padding:12px;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.8;max-height:300px;overflow-y:auto"></div>
     <div class="cfg-note">
       <strong>How Google Sheets updating works:</strong>
-      The dashboard fetches your sheet CSV URLs directly using <code>fetch()</code> in the browser — no server needed.
+      The dashboard fetches your sheet CSV URLs directly from Google Sheets. On GitHub Pages this works natively. Falls back to CORS proxies if needed.
       Google Sheets published CSVs include a <code>cache-busting</code> timestamp so each refresh gets the latest data.
       Make sure your sheet is published: <strong>File → Share → Publish to web → [Tab] → CSV → Publish</strong>.<br>
       <strong>Troubleshooting:</strong> If updates aren't showing, open the URL in a new browser tab to confirm the CSV shows your latest data.
@@ -461,63 +461,82 @@ function parseCSV(text){
 //  The API server fetches the CSV on our behalf
 // ══════════════════════════════════════════════════
 // ══════════════════════════════════════════════════
-//  FETCH SHEET: use Anthropic url_document source
-//  This passes the CSV URL directly to the API as a
-//  document — Claude reads it server-side, no CORS.
-//  Falls back to trying all 3 sheets in one call.
+//  FETCH SHEET: direct browser fetch from GitHub Pages
+//  Google Sheets published CSVs allow CORS from real
+//  domains (GitHub Pages). The Claude.ai sandbox was
+//  the problem before — this won't affect GitHub Pages.
+//  Strategy:
+//    1. Try direct fetch (works on GitHub Pages)
+//    2. Try via allorigins CORS proxy as fallback
 // ══════════════════════════════════════════════════
+function buildCsvUrl(url){
+  // Ensure output=csv, single=true, cache-bust timestamp
+  let u = url.trim();
+  u = u.replace(/[&?]output=[^&]*/g,'').replace(/[&?]single=[^&]*/g,'');
+  const sep = u.includes('?') ? '&' : '?';
+  return u + sep + 'output=csv&single=true&t=' + Date.now();
+}
+
 async function fetchSheetViaAPI(url, tabName){
   if(!url) return null;
-  // Force CSV output and add cache-bust
-  const csvUrl = url.replace(/[&?]output=[^&]*/,'')
-                    .replace(/[&?]single=[^&]*/,'') +
-                    (url.includes('?') ? '&' : '?') +
-                    'output=csv&single=true&t=' + Date.now();
-  log('Fetching '+tabName+': '+csvUrl.slice(0,80)+'...');
+  const csvUrl = buildCsvUrl(url);
+  log('Fetching '+tabName+': '+csvUrl.slice(0,90)+'...');
+
+  // ── Attempt 1: Direct fetch (works on GitHub Pages, not Claude sandbox) ──
   try{
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'document',
-              source: {
-                type: 'url',
-                url: csvUrl
-              }
-            },
-            {
-              type: 'text',
-              text: 'The document above is a CSV file. Return ONLY the raw CSV text exactly as it appears — every row, every column, no explanation, no markdown, no backticks. Start directly with the header row.'
-            }
-          ]
-        }]
-      })
+    const res = await fetch(csvUrl, {
+      method: 'GET',
+      mode: 'cors',
+      cache: 'no-store'
     });
-    if(!res.ok){
-      const errText = await res.text();
-      throw new Error('API HTTP '+res.status+': '+errText.slice(0,200));
+    if(res.ok){
+      const text = await res.text();
+      if(text && !text.trim().startsWith('<!') && text.includes(',')){
+        const rows = parseCSV(text);
+        log(tabName+' direct fetch OK: '+rows.length+' rows');
+        return rows;
+      }
     }
-    const data = await res.json();
-    log(tabName+' raw response type: '+(data.content||[]).map(b=>b.type).join(','));
-    const textBlock = (data.content||[]).find(b=>b.type==='text');
-    if(!textBlock||!textBlock.text) throw new Error('No text block in response. Blocks: '+JSON.stringify((data.content||[]).map(b=>b.type)));
-    const csv = textBlock.text.trim();
-    log(tabName+' response preview: '+csv.slice(0,120));
-    // Must look like CSV: has commas and newlines
-    if(!csv.includes(',') || csv.split('\n').length < 2){
-      throw new Error('Response does not look like CSV: '+csv.slice(0,150));
-    }
-    const rows = parseCSV(csv);
-    log(tabName+' parsed '+rows.length+' rows, cols: '+Object.keys(rows[0]||{}).join(','));
-    return rows;
+    log(tabName+' direct fetch status '+res.status+', trying proxy...');
   }catch(e){
-    log(tabName+' FAILED: '+e.message);
+    log(tabName+' direct fetch blocked ('+e.message.slice(0,50)+'), trying proxy...');
+  }
+
+  // ── Attempt 2: allorigins.win CORS proxy ──
+  try{
+    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(csvUrl);
+    log(tabName+' trying proxy: allorigins.win...');
+    const res2 = await fetch(proxyUrl, {cache:'no-store'});
+    if(res2.ok){
+      const text2 = await res2.text();
+      if(text2 && !text2.trim().startsWith('<!') && text2.includes(',')){
+        const rows = parseCSV(text2);
+        log(tabName+' proxy OK: '+rows.length+' rows');
+        return rows;
+      }
+      throw new Error('Proxy returned non-CSV: '+text2.slice(0,80));
+    }
+    throw new Error('Proxy HTTP '+res2.status);
+  }catch(e2){
+    log(tabName+' proxy failed: '+e2.message.slice(0,80));
+  }
+
+  // ── Attempt 3: corsproxy.io ──
+  try{
+    const proxy2 = 'https://corsproxy.io/?' + encodeURIComponent(csvUrl);
+    log(tabName+' trying proxy: corsproxy.io...');
+    const res3 = await fetch(proxy2, {cache:'no-store'});
+    if(res3.ok){
+      const text3 = await res3.text();
+      if(text3 && !text3.trim().startsWith('<!') && text3.includes(',')){
+        const rows = parseCSV(text3);
+        log(tabName+' corsproxy OK: '+rows.length+' rows');
+        return rows;
+      }
+    }
+    throw new Error('corsproxy HTTP '+res3.status);
+  }catch(e3){
+    log(tabName+' all fetch attempts failed: '+e3.message.slice(0,80));
     return null;
   }
 }
@@ -685,10 +704,10 @@ async function initDashboard(){
   chip('chip-sheets',hasSheets?'Sheets: fetching…':'Sheets: not configured',hasSheets?'loading':'warn');
   chip('chip-mode','Loading…','loading');
 
-  // ── STEP 1: Fetch Google Sheets via Anthropic API (no CORS issues) ──
+  // ── STEP 1: Fetch Google Sheets (direct + proxy fallbacks) ──
   let sheetsLoaded=0;
   if(hasSheets){
-    setProgress(15,'Fetching Google Sheets via Claude API…');
+    setProgress(15,'Fetching Google Sheets…');
     log('=== SHEETS FETCH (via Anthropic API) ===');
     const [kpiRows,cpiRows,fuelRows]=await Promise.all([
       fetchSheetViaAPI(urls.kpis,'KPIs'),

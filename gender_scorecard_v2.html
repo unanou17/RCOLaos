@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -169,6 +170,27 @@
     padding: 1.2rem 1.4rem;
     position: relative;
     overflow: hidden;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  }
+  .summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    border-color: rgba(255,255,255,0.22);
+  }
+  .summary-card .card-arrow {
+    position: absolute;
+    top: 0.65rem; right: 0.75rem;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.3);
+    transition: color 0.15s, transform 0.15s;
+    line-height: 1;
+  }
+  .summary-card:hover .card-arrow {
+    color: rgba(255,255,255,0.7);
+    transform: translate(2px, -2px);
   }
   .summary-card::before {
     content: '';
@@ -667,7 +689,7 @@
     <p class="hero-label">Performance Indicator Dashboard</p>
     <h2>Gender Equality<br><em>Progress Overview</em></h2>
     <p>Live view of UNCT-SWAP scorecard indicators across seven dimensions. Data sourced from the Indicator Data tab of the shared workbook.</p>
-    <a href="dimension_pages.html" class="hero-cta">Explore by Dimension →</a>
+    <a href="indicators.html" class="hero-cta">Explore all indicators →</a>
     <div class="summary-grid" id="summary-grid">
       </div>
   </div>
@@ -869,10 +891,11 @@ function buildSummary() {
   const el = document.getElementById('summary-grid');
   if (!el) return;
   el.innerHTML = Object.entries(counts).map(([key, val]) => `
-    <div class="summary-card ${key.toLowerCase()}">
+    <a class="summary-card ${key.toLowerCase()}" href="indicators.html?status=${key.toLowerCase()}" title="See all ${key} indicators">
+      <span class="card-arrow">↗</span>
       <div class="summary-num">${val}</div>
       <div class="summary-label">${key}</div>
-    </div>
+    </a>
   `).join('');
 }
 
@@ -922,7 +945,7 @@ function buildDimensions() {
       <div class="dimension-group">
         <div class="dim-header">
           <span>${dimName}</span>
-          <a href="dimension_pages.html#dim-${dimIdx}" class="dim-detail-link">View Criteria →</a>
+          <a href="indicators.html?dim=${dimIdx + 1}" class="dim-detail-link">View Criteria →</a>
         </div>
         <div class="indicators-row">
           ${dims[dimName].map(ind => {
@@ -1023,7 +1046,7 @@ function buildQuickWins() {
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             ${q.responsible || 'UNCT'}
           </span>
-          <a class="qw-link" href="dimension_pages.html#dim-${q.dim}">View criteria →</a>
+          <a class="qw-link" href="indicators.html#pi-${q.pi_id.toLowerCase().replace('pi ', '').replace('.', '-')}">View criteria →</a>
         </div>
       </div>`;
   }).join('');

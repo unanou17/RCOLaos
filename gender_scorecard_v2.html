@@ -841,9 +841,12 @@ function buildYearlyBars() {
 function piLink(piId) {
   const raw = String(piId || '').trim();
   if (!raw) return '';
-  // Only linkify values that look like a PI reference (e.g. "PI 1.1").
-  if (!/^PI\s*\d/i.test(raw)) return `<strong>${raw}</strong>`;
-  const anchor = raw.replace(/\s+/g, '-').toLowerCase();
+  // indicators.html builds its anchors from "PI X.Y" -> id="pi-x.y", so the
+  // anchor is always "pi-<number>". Pull the number out of whatever format the
+  // Activities sheet uses (e.g. "1.1", "PI 1.1", "PI1.1") and rebuild it.
+  const m = raw.match(/(\d+(?:\.\d+)?)/);
+  if (!m) return `<strong>${raw}</strong>`;
+  const anchor = `pi-${m[1]}`;
   return `<a href="indicators.html#${anchor}" class="pi-link" title="View ${raw} details"><strong>${raw}</strong></a>`;
 }
 

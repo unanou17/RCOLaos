@@ -914,8 +914,16 @@ function readUrlParams() {
     let tries = 0;
     const goto = () => {
       const el = document.getElementById(id);
-      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-      else if (tries++ < 20) { setTimeout(goto, 100); }
+      if (el) {
+        // Stop just below the sticky header + filter bar (measured live), plus a
+        // small gap — so the card isn't hidden, but isn't pushed too far down.
+        const header = document.querySelector('.site-header');
+        const filter = document.getElementById('filter-bar-wrap');
+        const offset = (header ? header.offsetHeight : 0)
+                     + (filter ? filter.offsetHeight : 0) + 16;
+        const y = el.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      } else if (tries++ < 20) { setTimeout(goto, 100); }
     };
     goto();
   }

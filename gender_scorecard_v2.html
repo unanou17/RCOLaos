@@ -147,12 +147,26 @@
     padding: 9px 20px;
     border-radius: 6px;
     text-decoration: none;
-    margin-bottom: 2.5rem;
     transition: background 0.15s, transform 0.15s;
   }
   .hero-cta:hover {
     background: #7a5134;
     transform: translateY(-1px);
+  }
+  .hero-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+  .hero-cta-alt {
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: #d4b896;
+  }
+  .hero-cta-alt:hover {
+    background: var(--accent);
+    color: #fff;
   }
 
   /* SUMMARY CARDS */
@@ -457,6 +471,30 @@
   .bar-seg.meets { background: var(--meets-mid); }
   .bar-seg.approaches { background: var(--approaches-mid); }
   .bar-seg.missing { background: var(--missing-mid); }
+  .bar-seg.not-assessed { background: var(--not-assessed-mid); }
+
+  /* YEARLY BARS */
+  .year-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .year-bar-row:last-child { margin-bottom: 0; }
+  .year-bar-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 48px;
+    flex-shrink: 0;
+  }
+  .year-bar-track {
+    display: flex;
+    flex: 1;
+    height: 30px;
+    border-radius: 5px;
+    overflow: hidden;
+  }
   .bar-legend {
     display: flex;
     gap: 1.5rem;
@@ -688,7 +726,10 @@
     <p class="hero-label">Performance Indicator Dashboard</p>
     <h2>Gender Equality<br><em>Progress Overview</em></h2>
     <p>Live view of UNCT-SWAP scorecard indicators across seven dimensions. Data sourced from the Indicator Data tab of the shared workbook.</p>
-    <a href="indicators.html" class="hero-cta">Explore all indicators →</a>
+    <div class="hero-buttons">
+      <a href="indicators.html" class="hero-cta">Explore all indicators →</a>
+      <a href="PASTE_GOOGLE_DRIVE_LINK_HERE" target="_blank" rel="noopener" class="hero-cta hero-cta-alt">Resources ↗</a>
+    </div>
     <div class="summary-grid" id="summary-grid">
       </div>
   </div>
@@ -696,41 +737,19 @@
 
 <main class="main">
   <div class="progress-section">
-    <div class="progress-title">Latest Status Distribution — All 15 Indicators</div>
-    <div class="stacked-bar" id="stacked-bar"></div>
-    <div class="bar-legend">
+    <div class="progress-title">Status Distribution by Year — All 15 Indicators</div>
+    <div id="yearly-bars"></div>
+    <div class="bar-legend" style="margin-top:1.25rem;">
       <div class="legend-item"><div class="legend-dot" style="background:var(--exceeds-mid)"></div> Exceeds</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--meets-mid)"></div> Meets</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--approaches-mid)"></div> Approaches</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--missing-mid)"></div> Missing</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--not-assessed-mid)"></div> Not assessed</div>
     </div>
   </div>
-
-  <div class="quickwins-section">
-    <div class="qw-header">
-      <div class="qw-title"><span class="qw-bolt">⚡</span> Quick Wins & Priority Actions</div>
-    </div>
-    <div class="qw-subtitle">Actions that require low-to-medium effort but resolve <strong>Missing</strong> or <strong>Approaches</strong> indicators.</div>
-    <div class="qw-grid" id="qw-grid">
-      </div>
-  </div>
-
-  <div class="section-title">Scorecard Indicators</div>
-  
-  <div class="filter-bar">
-    <span class="filter-label">Filter by Status:</span>
-    <button class="filter-btn active" onclick="setFilter('All', this)">All</button>
-    <button class="filter-btn" onclick="setFilter('Exceeds', this)">Exceeds</button>
-    <button class="filter-btn" onclick="setFilter('Meets', this)">Meets</button>
-    <button class="filter-btn" onclick="setFilter('Approaches', this)">Approaches</button>
-    <button class="filter-btn" onclick="setFilter('Missing', this)">Missing</button>
-  </div>
-
-  <div class="dimensions-grid" id="dimensions-grid">
-    </div>
 
   <div class="activities-section">
-    <div class="section-title">Recent & Upcoming Activities</div>
+    <div class="section-title">Recent &amp; Upcoming Activities</div>
     <div style="overflow-x:auto;">
       <table style="width:100%; border-collapse: collapse; text-align: left;">
         <thead>
@@ -756,13 +775,10 @@
 // --- GLOBAL DATA CONTAINERS ---
 let INDICATORS = [];
 let ACTIVITIES = [];
-let QUICK_WINS = [];
-let activeFilter = 'All';
 
 // --- GOOGLE SHEETS CSV ENDPOINTS ---
 const INDICATORS_CSV = "https://docs.google.com/spreadsheets/d/1Q7i_Unq9No-kO8aumvJ1MBoUIk0jkqFLA_rmpaR2BeM/gviz/tq?tqx=out:csv&sheet=Indicators";
 const ACTIVITIES_CSV = "https://docs.google.com/spreadsheets/d/1Q7i_Unq9No-kO8aumvJ1MBoUIk0jkqFLA_rmpaR2BeM/gviz/tq?tqx=out:csv&sheet=Activities";
-const QUICK_WINS_CSV = "https://docs.google.com/spreadsheets/d/1Q7i_Unq9No-kO8aumvJ1MBoUIk0jkqFLA_rmpaR2BeM/gviz/tq?tqx=out:csv&sheet=Quick+Wins";
 
 // Wrapped fetching logic into loadData
 async function loadData(isRefresh = false) {
@@ -784,10 +800,9 @@ async function loadData(isRefresh = false) {
     // Append a cache-busting parameter during refresh to ensure fresh data
     const cacheBuster = isRefresh ? `&_=${new Date().getTime()}` : '';
     
-    const [indRes, actRes, qwRes] = await Promise.all([
+    const [indRes, actRes] = await Promise.all([
       fetch(INDICATORS_CSV + cacheBuster).then(r => r.text()),
-      fetch(ACTIVITIES_CSV + cacheBuster).then(r => r.text()),
-      fetch(QUICK_WINS_CSV + cacheBuster).then(r => r.text())
+      fetch(ACTIVITIES_CSV + cacheBuster).then(r => r.text())
     ]);
 
     // Parse Indicators
@@ -824,39 +839,6 @@ async function loadData(isRefresh = false) {
       }));
     if (newActivities.length > 0) ACTIVITIES = newActivities;
 
-    // Parse Quick Wins
-    const parsedQw = Papa.parse(qwRes, { header: false, skipEmptyLines: true }).data;
-    const qwRows = parsedQw.filter(row => row[2] && row[2].trim() !== "" && row[2] !== "Action"); 
-    
-    const newQuickWins = [];
-    let currentQw = null;
-    
-    for (const row of qwRows) {
-      const piId = row[0] ? row[0].trim() : "";
-      if (piId && piId.match(/^PI \d/)) {
-        if (currentQw) newQuickWins.push(currentQw);
-        
-        let dim = parseInt(piId.replace('PI ', '').split('.')[0], 10) - 1;
-
-        currentQw = {
-          pi_id: piId,
-          name: row[1],
-          effort: row[5],
-          status: row[6],
-          responsible: row[4],
-          dim: dim,
-          actions: [],
-          actions_done: [] 
-        };
-      }
-      if (currentQw) {
-        currentQw.actions.push(row[2]);
-        currentQw.actions_done.push(row[3] && row[3].trim().toUpperCase() === "TRUE");
-      }
-    }
-    if (currentQw) newQuickWins.push(currentQw);
-    if (newQuickWins.length > 0) QUICK_WINS = newQuickWins;
-
   } catch (err) {
     console.warn("Failed to fetch from Google Sheets. Using fallbacks if available.", err);
   } finally {
@@ -869,14 +851,8 @@ async function loadData(isRefresh = false) {
 
   // Trigger builders
   buildSummary();
-  buildStackedBar();
-  buildDimensions();
+  buildYearlyBars();
   buildActivities();
-  buildQuickWins();
-  
-  // Re-apply filter if active
-  const activeBtn = document.querySelector('.filter-btn.active');
-  if (activeBtn) setFilter(activeFilter, activeBtn);
 }
 
 // --- RENDER FUNCTIONS ---
@@ -898,100 +874,39 @@ function buildSummary() {
   `).join('');
 }
 
-function buildStackedBar() {
+function buildYearlyBars() {
+  const container = document.getElementById('yearly-bars');
+  if (!container) return;
   const total = INDICATORS.length;
-  const counts = { Exceeds: 0, Meets: 0, Approaches: 0, Missing: 0 };
-  INDICATORS.forEach(ind => {
-    const s = ind.latest_status;
-    if (counts[s] !== undefined) counts[s]++;
-  });
-  const bar = document.getElementById('stacked-bar');
-  if (!bar) return;
-  bar.innerHTML = Object.entries(counts).map(([key, val]) => {
-    if (val === 0) return '';
-    const pct = ((val / total) * 100).toFixed(1);
-    const label = pct > 10 ? `${val} (${pct}%)` : val;
-    return `<div class="bar-seg ${key.toLowerCase()}" style="width:${pct}%">${label}</div>`;
+  const years = [
+    { yr: '2022', key: 'status_2022' },
+    { yr: '2023', key: 'status_2023' },
+    { yr: '2024', key: 'status_2024' },
+    { yr: '2025', key: 'status_2025' }
+  ];
+  const order = ['Exceeds', 'Meets', 'Approaches', 'Missing', 'Not assessed'];
+
+  container.innerHTML = years.map(({ yr, key }) => {
+    const counts = { Exceeds: 0, Meets: 0, Approaches: 0, Missing: 0, 'Not assessed': 0 };
+    INDICATORS.forEach(ind => {
+      const s = ind[key];
+      if (counts[s] !== undefined) counts[s]++;
+      else counts['Not assessed']++;
+    });
+    const segs = order.map(k => {
+      const val = counts[k];
+      if (val === 0) return '';
+      const pct = ((val / total) * 100).toFixed(1);
+      const cls = k.toLowerCase().replace(' ', '-');
+      const label = pct > 9 ? val : '';
+      return `<div class="bar-seg ${cls}" style="width:${pct}%" title="${yr} · ${k}: ${val}">${label}</div>`;
+    }).join('');
+    return `
+      <div class="year-bar-row">
+        <div class="year-bar-label">${yr}</div>
+        <div class="year-bar-track">${segs}</div>
+      </div>`;
   }).join('');
-}
-
-function getShortStatus(stat) {
-  if (!stat) return 'N/A';
-  const s = stat.toLowerCase();
-  if (s.includes('exceeds')) return 'Exc.';
-  if (s.includes('meets')) return 'Meet';
-  if (s.includes('approaches')) return 'Appr.';
-  if (s.includes('missing')) return 'Miss';
-  return stat;
-}
-
-function buildDimensions() {
-  const grid = document.getElementById('dimensions-grid');
-  if (!grid) return;
-  
-  const dims = {};
-  INDICATORS.forEach(ind => {
-    if (!dims[ind.dimension]) dims[ind.dimension] = [];
-    dims[ind.dimension].push(ind);
-  });
-
-  let html = '';
-  Object.keys(dims).sort().forEach((dimName) => {
-    const dimIdxStr = dimName.split('.')[0] || '1';
-    const dimIdx = parseInt(dimIdxStr, 10) - 1;
-    
-    html += `
-      <div class="dimension-group">
-        <div class="dim-header">
-          <span>${dimName}</span>
-          <a href="indicators.html?dim=${dimIdx + 1}" class="dim-detail-link">View Criteria →</a>
-        </div>
-        <div class="indicators-row">
-          ${dims[dimName].map(ind => {
-            const sc = ind.latest_status ? ind.latest_status.toLowerCase().replace(' ', '-') : 'not-assessed';
-            return `
-              <div class="indicator-card ${sc}">
-                <div class="card-accent"></div>
-                <div class="card-top">
-                  <span class="pi-id">${ind.pi_id}</span>
-                  <span class="status-pill pill-${sc}">${ind.latest_status}</span>
-                </div>
-                <div class="indicator-name">${ind.indicator_name}</div>
-                <div class="card-meta">
-                  <span>Last assessed: ${ind.last_assessed}</span>
-                </div>
-                
-                <div class="trend-label">4-Year Trend</div>
-                <div class="trend-dots">
-                  ${[
-                    {year: '2022', stat: ind.status_2022},
-                    {year: '2023', stat: ind.status_2023},
-                    {year: '2024', stat: ind.status_2024},
-                    {year: '2025', stat: ind.status_2025}
-                  ].map((t, idx) => {
-                    const ts = t.stat ? t.stat.toLowerCase().replace(' ', '-') : 'not-assessed';
-                    return `
-                      <div class="trend-item">
-                        <div class="trend-dot dot-${ts}"></div>
-                        <div class="trend-year">${t.year}</div>
-                        <div class="trend-status">${getShortStatus(t.stat)}</div>
-                      </div>
-                      ${idx < 3 ? `<div class="trend-connector"></div>` : ''}
-                    `;
-                  }).join('')}
-                </div>
-                
-                <div class="card-agency">
-                  <span>Lead: ${ind.agency}</span>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  });
-  grid.innerHTML = html;
 }
 
 function buildActivities() {
@@ -1008,63 +923,6 @@ function buildActivities() {
       <td style="padding: 10px; color:var(--text-muted); font-size:0.85rem;">${a.notes}</td>
     </tr>
   `).join('');
-}
-
-function buildQuickWins() {
-  const grid = document.getElementById('qw-grid');
-  if (!grid) return;
-
-  const effortRank = { "Low": 0, "Medium": 1, "High": 2 };
-  const minEffort = Math.min(...QUICK_WINS.map(q => effortRank[q.effort] !== undefined ? effortRank[q.effort] : 99));
-
-  grid.innerHTML = QUICK_WINS.map(q => {
-    const isStartHere = effortRank[q.effort] === minEffort;
-    const statusClass = q.status ? q.status.toLowerCase().replace(' ', '-') : '';
-    
-    const actionsHtml = q.actions.map((a, i) => {
-      const isDone = q.actions_done && q.actions_done[i];
-      const dotClass = isDone ? "qw-action-dot done" : "qw-action-dot";
-      const dotSymbol = isDone ? "✓" : "–";
-      return `<li class="qw-action"><span class="${dotClass}">${dotSymbol}</span>${a}</li>`;
-    }).join('');
-
-    return `
-      <div class="qw-card ${isStartHere ? 'start-here' : ''}">
-        <div class="qw-card-top">
-          <span class="qw-pi">${q.pi_id}</span>
-          <div class="qw-badges">
-            ${isStartHere ? '<span class="qw-starthere">Start here</span>' : ''}
-            <span class="qw-effort effort-${q.effort.toLowerCase()}">${q.effort} effort</span>
-            <span class="qw-status ${statusClass}">${q.status}</span>
-          </div>
-        </div>
-        <div class="qw-name">${q.name}</div>
-        <ul class="qw-actions">${actionsHtml}</ul>
-        <div class="qw-card-footer">
-          <span class="qw-resp">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            ${q.responsible || 'UNCT'}
-          </span>
-          <a class="qw-link" href="indicators.html#pi-${q.pi_id.toLowerCase().replace('pi ', '').replace('.', '-')}">View criteria →</a>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-// --- FILTERING ---
-function setFilter(filter, btn) {
-  activeFilter = filter;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active', 'exceeds', 'meets', 'approaches', 'missing'));
-  btn.classList.add('active');
-  if (filter !== 'All') btn.classList.add(filter.toLowerCase());
-  
-  document.querySelectorAll('.indicator-card').forEach(card => {
-    if (filter === 'All' || card.classList.contains(filter.toLowerCase())) {
-      card.style.display = '';
-    } else {
-      card.style.display = 'none';
-    }
-  });
 }
 
 // Start sequence on load

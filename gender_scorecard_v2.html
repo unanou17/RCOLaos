@@ -876,7 +876,7 @@ async function loadData(isRefresh = false) {
     // Parse Indicators
     const parsedInd = Papa.parse(indRes, { header: false, skipEmptyLines: true }).data;
     const newIndicators = parsedInd
-      .filter(row => row[1] && row[1].match(/^PI \d/))
+      .filter((row, index) => index > 0 && row[1]) // Updated filter
       .map(row => ({
         dimension: row[0],
         pi_id: row[1],
@@ -894,7 +894,7 @@ async function loadData(isRefresh = false) {
     // Parse Activities
     const parsedAct = Papa.parse(actRes, { header: false, skipEmptyLines: true }).data;
     const newActivities = parsedAct
-      .filter(row => row[1] && row[1].match(/^PI \d/))
+      .filter((row, index) => index > 0 && row[1]) // Updated filter
       .map(row => ({
         date: row[0],
         pi_id: row[1],

@@ -390,7 +390,6 @@
   .indicator-card.meets .card-accent { background: var(--meets-mid); }
   .indicator-card.approaches .card-accent { background: var(--approaches-mid); }
   .indicator-card.missing .card-accent { background: var(--missing-mid); }
-  .indicator-card.not-assessed .card-accent { background: var(--not-assessed-mid); }
   .card-top {
     display: flex;
     justify-content: space-between;
@@ -414,7 +413,6 @@
   .pill-meets { background: var(--meets-bg); color: var(--meets); }
   .pill-approaches { background: var(--approaches-bg); color: var(--approaches); }
   .pill-missing { background: var(--missing-bg); color: var(--missing); }
-  .pill-not-assessed { background: var(--not-assessed-bg); color: var(--not-assessed); }
   .indicator-name {
     font-size: 0.95rem;
     font-weight: 600;
@@ -454,7 +452,6 @@
   .dot-meets { background: var(--meets-mid); }
   .dot-approaches { background: var(--approaches-mid); }
   .dot-missing { background: var(--missing-mid); }
-  .dot-not-assessed { background: #d1d5db; }
   .trend-year { font-size: 0.6rem; color: var(--text-muted); font-weight: 600;}
   .trend-status { 
     font-size: 0.55rem; 
@@ -520,7 +517,6 @@
   .bar-seg.meets { background: var(--meets-mid); }
   .bar-seg.approaches { background: var(--approaches-mid); }
   .bar-seg.missing { background: var(--missing-mid); }
-  .bar-seg.not-assessed { background: var(--not-assessed-mid); }
 
   /* YEARLY BARS */
   .year-bar-row {
@@ -561,174 +557,6 @@
     border-radius: 50%;
     flex-shrink: 0;
   }
-
-  /* QUICK WINS */
-  .quickwins-section {
-    margin-bottom: 3.5rem;
-  }
-  .qw-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 0.4rem;
-  }
-  .qw-title {
-    font-family: 'Lato', sans-serif;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-  .qw-bolt {
-    width: 28px; height: 28px;
-    background: #f59e0b;
-    border-radius: 7px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 0.95rem;
-  }
-  .qw-subtitle {
-    font-size: 0.88rem;
-    color: var(--text-muted);
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-    max-width: 720px;
-  }
-  .qw-subtitle strong { color: var(--missing); }
-  .qw-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1rem;
-  }
-  .qw-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.3rem 1.4rem;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .qw-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.07);
-  }
-  .qw-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; bottom: 0;
-    width: 4px;
-    background: #f59e0b;
-  }
-  .qw-card.start-here::before { background: var(--exceeds-mid); }
-  .qw-card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.6rem;
-  }
-  .qw-pi {
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-  }
-  .qw-badges { display: flex; gap: 0.4rem; align-items: center; }
-  .qw-effort {
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    padding: 3px 9px;
-    border-radius: 99px;
-  }
-  .effort-low { background: var(--exceeds-bg); color: var(--exceeds); }
-  .effort-medium { background: var(--approaches-bg); color: var(--approaches); }
-  .effort-high { background: var(--missing-bg); color: var(--missing); }
-  .qw-starthere {
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    padding: 3px 9px;
-    border-radius: 99px;
-    background: var(--exceeds);
-    color: #fff;
-  }
-  .qw-name {
-    font-size: 1.02rem;
-    font-weight: 600;
-    margin-bottom: 0.8rem;
-    line-height: 1.3;
-  }
-  .qw-actions {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    flex: 1;
-  }
-  .qw-action {
-    display: flex;
-    gap: 0.55rem;
-    align-items: flex-start;
-    font-size: 0.81rem;
-    line-height: 1.45;
-    color: var(--text);
-  }
-  
-  .qw-action-dot {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    font-size: 0.7rem;
-    font-weight: 700;
-    flex-shrink: 0;
-    background: var(--missing-bg);
-    color: var(--missing);
-    border: 1px solid #fca5a5;
-    margin-top: 2px;
-  }
-  .qw-action-dot.done {
-    background: var(--meets-bg);
-    color: var(--meets);
-    border: 1px solid #86efac;
-  }
-
-  .qw-card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border);
-    margin-top: auto;
-  }
-  .qw-resp {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-  }
-  .qw-link {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--accent);
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-  .qw-link:hover { color: #007BAD; }
 
   /* ACTIVITIES TABLE */
   .activities-section { margin-top: 3.5rem; }

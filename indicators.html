@@ -765,11 +765,17 @@ function renderCard(ind) {
   const anchor = ind.pi_id.replace(/\s+/g, '-').toLowerCase();
   const year = ind.last_assessed || '';
 
-  // Trend dots (Restored 2022-2025 layout)
+  // Trend dots (2022-2025 layout).
+  // The sheet keeps every year filled (carried forward) so the main-page graph
+  // works, but a year was only *actually* assessed up to column I (last_assessed).
+  // Any year more recent than last_assessed is carried-forward padding, so we
+  // render it grey / N/A here instead of repeating the last colour.
   const years = ['2022','2023','2024','2025'];
   const statuses = [ind.status_2022, ind.status_2023, ind.status_2024, ind.status_2025];
+  const lastYr = parseInt(ind.last_assessed, 10);   // column I
   const trendHtml = years.map((yr, i) => {
-    const s = statuses[i] || 'Not assessed';
+    let s = statuses[i] || 'Not assessed';
+    if (lastYr && parseInt(yr, 10) > lastYr) s = 'Not assessed';  // carried-forward → grey
     return `<div class="trend-mini-item">
       <div class="trend-dot-sm ${dotClass(s)}" title="${yr}: ${s}"></div>
       <div class="trend-year-sm">${yr}</div>

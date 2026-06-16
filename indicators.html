@@ -715,10 +715,17 @@ function renderCard(ind) {
   const year = ind.last_assessed || '';
 
   // Trend dots
+  // "Not assessed" is no longer used as a status value in the sheet — instead,
+  // column I (last_assessed) tells us the most recent year this indicator was
+  // assessed. Any year AFTER that is treated as N/A (grey) regardless of what's
+  // in that year's status cell. Years up to and including last_assessed use the
+  // actual recorded status (falling back to N/A only if the cell is blank).
   const years = ['2022','2023','2024','2025'];
   const statuses = [ind.status_2022, ind.status_2023, ind.status_2024, ind.status_2025];
+  const lastAssessedYear = parseInt(ind.last_assessed, 10);
   const trendHtml = years.map((yr, i) => {
-    const s = statuses[i] || 'Not assessed';
+    const isFutureYear = !isNaN(lastAssessedYear) && parseInt(yr, 10) > lastAssessedYear;
+    const s = isFutureYear ? 'Not assessed' : (statuses[i] || 'Not assessed');
     return `<div class="trend-mini-item">
       <div class="trend-dot-sm ${dotClass(s)}" title="${yr}: ${s}"></div>
       <div class="trend-year-sm">${yr}</div>

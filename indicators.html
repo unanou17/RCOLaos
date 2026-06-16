@@ -32,8 +32,8 @@
   .site-header h1 { font-family: 'Lato', sans-serif; font-weight: 700; font-size: 1.02rem; letter-spacing: 0.01em; }
   .header-right { display: flex; align-items: center; gap: 1rem; }
   .header-badge { background: var(--accent); color: #fff; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 12px; border-radius: 2px; }
-  .back-link { color: #7fd4f0; font-size: 0.78rem; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 0.3rem; transition: color 0.15s; }
-  .back-link:hover { color: #fff; }
+  .logo-link { display: flex; align-items: center; transition: opacity 0.15s; }
+  .logo-link:hover { opacity: 0.8; }
 
   /* ── PAGE HERO ── */
   .page-hero {
@@ -284,12 +284,13 @@
 
 <header class="site-header">
   <div class="header-left">
-    <img src="un_logo_lao.png" alt="United Nations Lao PDR" class="header-logo">
+    <a href="https://unrcolaos.github.io/dashboards/gender_scorecard_v2.html" class="logo-link" title="Back to main page">
+      <img src="un_logo_lao.png" alt="United Nations Lao PDR" class="header-logo">
+    </a>
     <span class="header-divider"></span>
     <h1>UNCT-SWAP Gender Equality Scorecard</h1>
   </div>
   <div class="header-right">
-    <a href="https://unanou17.github.io/RCOLaos/gender_scorecard_v2.html" class="back-link">← Overview</a>
     <span class="header-badge">Lao PDR</span>
   </div>
 </header>

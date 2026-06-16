@@ -6,6 +6,8 @@
 <title>UNCT-SWAP Gender Equality Scorecard</title>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root {
     --exceeds: #1d4e89;
@@ -87,7 +89,12 @@
     padding: 4px 12px;
     border-radius: 2px;
   }
-  .refresh-btn {
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .refresh-btn, .print-btn {
     background: transparent;
     color: #fff;
     border: 1.5px solid var(--accent);
@@ -102,13 +109,14 @@
     align-items: center;
     gap: 0.4rem;
   }
-  .refresh-btn:hover:not(:disabled) {
+  .refresh-btn:hover:not(:disabled), .print-btn:hover:not(:disabled) {
     background: var(--accent);
   }
-  .refresh-btn:disabled {
+  .refresh-btn:disabled, .print-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
 
   /* HERO */
   .hero {
@@ -623,10 +631,16 @@
     <h1>UNCT-SWAP Gender Equality Scorecard</h1>
     <span class="header-badge">Lao PDR</span>
   </div>
-  <button id="refresh-btn" class="refresh-btn" onclick="loadData(true)">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 1 0 2.13-5.88L21 8"></path></svg>
-    Refresh Data
-  </button>
+  <div class="header-actions" id="header-actions">
+    <button id="print-btn" class="print-btn" onclick="downloadScorecardPDF()" title="Download a one-page PDF snapshot of this dashboard">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+      Print Page
+    </button>
+    <button id="refresh-btn" class="refresh-btn" onclick="loadData(true)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 1 0 2.13-5.88L21 8"></path></svg>
+      Refresh Data
+    </button>
+  </div>
 </header>
 
 <section class="hero">
@@ -866,6 +880,65 @@ function formatCell(raw) {
   }
   // Mixed or plain multi-line: preserve each line break
   return lines.map(l => esc(l)).join('<br>');
+}
+
+// --- PRINT / EXPORT TO ONE-PAGE PDF ---
+async function downloadScorecardPDF() {
+  const printBtn = document.getElementById('print-btn');
+  const headerActions = document.getElementById('header-actions');
+  if (!printBtn || typeof html2canvas === 'undefined' || !window.jspdf) return;
+
+  const originalHTML = printBtn.innerHTML;
+  printBtn.disabled = true;
+  printBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 1 0 2.13-5.88L21 8"></path></svg> Generating...`;
+
+  // Hide the header buttons while we capture the page so they don't appear in the export
+  const prevDisplay = headerActions ? headerActions.style.display : '';
+  if (headerActions) headerActions.style.display = 'none';
+
+  try {
+    const canvas = await html2canvas(document.body, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#fafaf8',
+      windowWidth: document.documentElement.scrollWidth,
+      windowHeight: document.documentElement.scrollHeight
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+
+    const { jsPDF } = window.jspdf;
+    // Pick the A4 orientation that best matches the captured content's shape
+    const orientation = imgWidth > imgHeight ? 'landscape' : 'portrait';
+    const pdf = new jsPDF({ orientation, unit: 'mm', format: 'a4' });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // Scale the captured image down so it fits entirely within a single A4 page
+    const margin = 5; // mm
+    const usableWidth = pageWidth - margin * 2;
+    const usableHeight = pageHeight - margin * 2;
+    const scaleFactor = Math.min(usableWidth / imgWidth, usableHeight / imgHeight);
+    const finalWidth = imgWidth * scaleFactor;
+    const finalHeight = imgHeight * scaleFactor;
+    const x = (pageWidth - finalWidth) / 2;
+    const y = (pageHeight - finalHeight) / 2;
+
+    pdf.addImage(imgData, 'JPEG', x, y, finalWidth, finalHeight);
+
+    const today = new Date().toISOString().slice(0, 10);
+    pdf.save(`UNCT-SWAP_Gender_Scorecard_LaoPDR_${today}.pdf`);
+  } catch (err) {
+    console.error('Failed to generate PDF', err);
+    alert('Sorry, something went wrong while generating the PDF. Please try again.');
+  } finally {
+    if (headerActions) headerActions.style.display = prevDisplay;
+    printBtn.disabled = false;
+    printBtn.innerHTML = originalHTML;
+  }
 }
 
 // Start sequence on load

@@ -261,6 +261,14 @@
   .check-met   { background: var(--exceeds-bg); color: var(--exceeds); }
   .check-unmet { background: #f3f4f6; color: #9ca3af; border: 1px solid #e5e7eb; }
 
+  /* threshold-style criteria (any-N-of-M indicators) */
+  .threshold-list { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 1.1rem; }
+  .threshold-item { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.85rem; line-height: 1.5; }
+  .threshold-item-text { color: var(--text); }
+  .threshold-item.is-unmet .threshold-item-text { color: var(--text-muted); }
+  .threshold-legend { display: flex; flex-wrap: wrap; gap: 1.1rem; padding-top: 0.9rem; border-top: 1px solid var(--border); font-size: 0.72rem; color: var(--text-muted); }
+  .threshold-count { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.9rem; }
+
   /* empty state */
   .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
   .empty-state h3 { font-family: 'Lato', sans-serif; font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--text); }
@@ -369,6 +377,20 @@ const CRITERIA_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT5D74
 // Data objects that will be populated by the fetch
 let INDICATORS = [];
 
+// Indicators whose official scoring logic is "any N of M criteria met",
+// not a fixed per-level sequence. The same criteria list applies at every
+// level; only the required count changes. These get a single-checklist
+// card instead of the standard 3-column Approaches/Meets/Exceeds display,
+// so the UI doesn't imply (a) must be completed before (b) or (c).
+const THRESHOLD_INDICATORS = {
+  "PI 2.3": { approaches: 1, meets: 2, exceeds: 3 },
+  "PI 3.1": { approaches: 1, meets: 2, exceeds: 3 },
+  "PI 3.2": { approaches: 1, meets: 2, exceeds: 3 },
+  "PI 4.1": { approaches: 2, meets: 3, exceeds: 4 },
+  "PI 5.1": { approaches: 2, meets: 3, exceeds: 4 },
+  "PI 5.2": { approaches: 1, meets: 2, exceeds: 3 }
+};
+
 const PI_META = {
   "PI 1.1": {
     title: "Common Country Analysis Integrates Gender Analysis",
@@ -425,36 +447,37 @@ const PI_META = {
     title: "UNSDCF Monitoring, Evaluation & Learning Measures Gender Equality Results",
     summary: "The UN's monitoring system must actively track gender equality results — collecting gender-sensitive data, integrating GEWE into reviews, and building M&E staff capacity.",
     criteria: [
-      {level:"Approaches", text:"ONE of: (a) UNSDCF Results Framework gender-sensitive data gathered as planned; (b) monitoring assesses gender-specific results; (c) MEL Group received gender-sensitive M&E training at least once.", met:true},
-      {level:"Meets",      text:"TWO of the three criteria - NOW, only (a), (b) are met.", met:true},
-      {level:"Exceeds",    text:"ALL THREE - NOT DONE => (c) MEL Group trained on gender-sensitive M&E during the current cycle.", met:false}
+      {text:"(a) UNSDCF Results Framework gender-sensitive data gathered as planned.", met:true},
+      {text:"(b) Monitoring/reporting/reviews/evaluations assess progress against gender-specific results.", met:true},
+      {text:"(c) MEL Group received technical training on gender-sensitive M&E at least once in cycle.", met:false}
     ]
   },
   "PI 3.1": {
     title: "UNCT Collaborates with Government on Gender Equality",
     summary: "The UNCT must engage the national women's machinery and at least two government entities in joint gender initiatives, and actively support government participation in gender-related SDG implementation.",
     criteria: [
-      {level:"Approaches", text:"ONE of: (a) collaborated with ≥2 government entities on a joint GEWE initiative; (b) National Women's Machinery in UNSDCF consultations; (c) ≥1 contribution to government engagement in gender-related SDGs.", met:true},
-      {level:"Meets",      text:"TWO of the three criteria (a), (b), (c).", met:true},
-      {level:"Exceeds",    text:"ALL THREE: (a) joint initiative with ≥2 government entities; (b) National Women's Machinery in UNSDCF; (c) contribution to government SDG engagement on gender.", met:true}
+      {text:"(a) UNCT collaborated with at least 2 government agencies/entities on a joint GEWE initiative in the current UNSDCF cycle.", met:true},
+      {text:"(b) National Women's Machinery participates in UNSDCF consultations (CCA, CF design, implementation, M&E).", met:true},
+      {text:"(c) UNCT made at least one contribution to strengthen government engagement in gender-related SDGs.", met:true}
     ]
   },
   "PI 3.2": {
     title: "UNCT Collaborates with Women's/GEWE Civil Society Organisations",
     summary: "Women's rights organisations are essential partners. This indicator tracks whether GEWE CSOs are engaged jointly on programmes, in UNSDCF design, and in gender-related SDG implementation.",
     criteria: [
-      {level:"Approaches", text:"(a) collaborated with GEWE CSOs on ≥2 joint initiatives.", met:true},
-      {level:"Meets",      text:"IN ADDITION to (a), complete either: (b) GEWE CSO participates in UNSDCF consultations; OR (c) ≥1 contribution to CSO engagement in gender-related SDGs.", met:false},
-      {level:"Exceeds",    text:"ALL THREE: (a) joint initiatives with GEWE CSOs; (b) GEWE CSO in UNSDCF consultations; (c) contribution to CSO engagement in gender-related SDGs.", met:false}
+      {text:"(a) UNCT collaborated with GEWE CSOs and women's rights advocates on at least 2 joint initiatives in the current UNSDCF cycle.", met:true},
+      {text:"(b) GEWE CSO participates in UNSDCF consultations (CCA, CF design, implementation, M&E).", met:false},
+      {text:"(c) UNCT made at least one contribution to strengthen CSO engagement in gender-related SDGs.", met:false}
     ]
   },
   "PI 4.1": {
     title: "UNCT Leadership is Committed to Championing Gender Equality",
     summary: "Measures visible commitment of UN leadership — including the RC and Heads of Agencies — to gender equality in both public forums and internal management.",
     criteria: [
-      {level:"Approaches", text:"(a) gender discussed in ≥60% of UNCT meetings; (b) RC demonstrates external public championing.", met:true},
-      {level:"Meets",      text:"IN ADDITION to (a) and (b), complete either: (c) RC demonstrates internal championing; OR (d) HOAs seen by personnel as committed to gender equality.", met:false},
-      {level:"Exceeds",    text:"ALL FOUR: (a) gender on UNCT agenda ≥60%; (b) RC external championing; (c) RC internal championing; (d) HOAs seen as committed.", met:false}
+      {text:"(a) Gender equality discussed in at least 60% of UNCT meetings during past 12 months.", met:true},
+      {text:"(b) RC demonstrates external public championing of gender equality during past 12 months.", met:true},
+      {text:"(c) RC demonstrates internal championing of gender equality during past 12 months.", met:false},
+      {text:"(d) HOAs seen by personnel as committed to gender equality in workplace during past 12 months.", met:false}
     ]
   },
   "PI 4.2": {
@@ -471,28 +494,29 @@ const PI_META = {
     summary: "A system-wide parity plan, appointed gender focal points, and demonstrated progress are the building blocks. This remains the most persistently low-scoring indicator — no parity plan or focal point in place.",
     criteria: [
       {level:"Approaches", text:"(a) A system-wide plan is in place for the UNCT to achieve gender parity.", met:false},
-      {level:"Meets",      text:"(a) + (b): At least one Gender Focal Point appointed (as per SGB/2023/3).", met:false},
+      {level:"Meets",      text:"(b) At least one Gender Focal Point appointed (as per SGB/2023/3).", met:false},
       {level:"Meets",      text:"(c) UNCT can demonstrate progress in implementing the system-wide parity plan.", met:false},
       {level:"Exceeds",    text:"(d) Positive trends towards achieving gender parity demonstrated.", met:false},
-      {level:"Exceeds",    text:"(e) BOS includes gender-specific actions and indicators in at least one Business Operation Area.", met:false}
+      {level:"Exceeds",    text:"(e) Business Operations Strategy (BOS) includes gender-specific actions and indicators in at least one Business Operation Area.", met:false}
     ]
   },
   "PI 5.1": {
     title: "Gender Coordination Mechanism is Empowered to Influence the UNCT",
     summary: "The Gender Thematic Group (GTG) must be formally structured, senior-led, and actively engaged in UNSDCF processes. This indicator made the biggest leap in 2025 — Missing to Exceeds.",
     criteria: [
-      {level:"Approaches", text:"TWO of: (a) coordination mechanism chaired by a HOA; (b) approved TOR and annual workplan; (c) members include ≥50% senior staff (P4/NOC+); (d) substantive input into UNSDCF.", met:true},
-      {level:"Meets",      text:"THREE of the four criteria (a), (b), (c), (d).", met:true},
-      {level:"Exceeds",    text:"ALL FOUR: (a) HOA chair; (b) approved TOR + workplan; (c) ≥50% senior members; (d) substantive input into UNSDCF.", met:true}
+      {text:"(a) Coordination mechanism for gender equality is chaired by a HOA.", met:true},
+      {text:"(b) Group has an approved TOR and annual work plan.", met:true},
+      {text:"(c) Members include at least 50% senior staff (P4/NOC and above or equivalent).", met:true},
+      {text:"(d) Group has made substantive input into UNSDCF (CCA, CF design, results framework, M&E).", met:true}
     ]
   },
   "PI 5.2": {
     title: "UNCT has Adequate Capacities for Gender Mainstreaming",
     summary: "Regular inter-agency gender training, a capacity development plan, and GEWE-inclusive induction materials ensure UN staff have the knowledge to mainstream gender. Currently no capacity plan or GEWE induction content in place.",
     criteria: [
-      {level:"Approaches", text:"(a) At least one substantive inter-agency gender capacity development activity carried out in the past 12 months.", met:false},
-      {level:"Meets",      text:"TWO of: (a) annual inter-agency training; (b) capacity development plan established/updated ≥once per UNSDCF cycle and on track; (c) UNCT induction material includes GEWE commitments.", met:false},
-      {level:"Exceeds",    text:"ALL THREE: (a) annual training; (b) capacity plan on track; (c) UNCT induction includes GEWE content.", met:false}
+      {text:"(a) At least one substantive inter-agency gender capacity development activity carried out in past 12 months.", met:false},
+      {text:"(b) Capacity development plan based on inter-agency assessment established/updated at least once per UNSDCF cycle and on track.", met:false},
+      {text:"(c) UNCT induction material includes GEWE commitments and country development challenges.", met:false}
     ]
   },
   "PI 6.1": {
@@ -826,11 +850,12 @@ function renderCard(ind) {
   if (latest.toLowerCase().includes('missing') && metCriteria.length === 0) {
     achievedHtml = `<div class="missing-banner">⚠ No criteria met. Action required to reach Approaches level.</div>`;
   } else if (totalCriteria > 0) {
-    const dotsHtml = meta.criteria.map(c =>
-      c.met
-        ? `<div class="achieved-dot" title="${c.level}: met"></div>`
-        : `<div class="unachieved-dot" title="${c.level}: not met"></div>`
-    ).join('');
+    const dotsHtml = meta.criteria.map(c => {
+      const label = c.level || 'Criterion';
+      return c.met
+        ? `<div class="achieved-dot" title="${label}: met"></div>`
+        : `<div class="unachieved-dot" title="${label}: not met"></div>`;
+    }).join('');
     achievedHtml = `<div class="achieved-bar">
       <span class="achieved-label">Criteria achieved (${year} assessment):</span>
       <div class="achieved-dots">${dotsHtml}</div>
@@ -838,9 +863,37 @@ function renderCard(ind) {
     </div>`;
   }
 
-  // Criteria Table (Restored from source 1)
+  // Criteria Table — two display modes.
+  // Threshold indicators (PI_META criteria carry no per-level distinction;
+  // the same criteria list applies at every level, only the required count
+  // changes) get a single checklist instead of 3 repeated columns, so the
+  // UI never implies criterion (a) must be met before (b) or (c).
   let criteriaHtml = '';
-  if (totalCriteria > 0) {
+  const threshold = THRESHOLD_INDICATORS[ind.pi_id];
+
+  if (threshold && totalCriteria > 0) {
+    const metCount = metCriteria.length;
+    let computedLevel = 'Missing';
+    if (metCount >= threshold.exceeds) computedLevel = 'Exceeds';
+    else if (metCount >= threshold.meets) computedLevel = 'Meets';
+    else if (metCount >= threshold.approaches) computedLevel = 'Approaches';
+
+    const itemsHtml = meta.criteria.map(c => `<li class="threshold-item ${c.met ? '' : 'is-unmet'}">
+      <span class="criteria-check ${c.met ? 'check-met' : 'check-unmet'}">${c.met ? '✓' : '○'}</span>
+      <span class="threshold-item-text">${c.text}</span>
+    </li>`).join('');
+
+    criteriaHtml = `<div class="criteria-section">
+      <div class="criteria-title">Scoring Criteria</div>
+      <div class="threshold-count">${metCount} of ${totalCriteria} criteria met &middot; computed level: <span class="status-pill ${pillClass(computedLevel)}" style="font-size:0.68rem;padding:0.15rem 0.5rem;">${computedLevel}</span></div>
+      <ul class="threshold-list">${itemsHtml}</ul>
+      <div class="threshold-legend">
+        <span>Approaches: any ${threshold.approaches} of ${totalCriteria}</span>
+        <span>Meets: any ${threshold.meets} of ${totalCriteria}</span>
+        <span>Exceeds: all ${totalCriteria}</span>
+      </div>
+    </div>`;
+  } else if (totalCriteria > 0) {
     const levels = ['Approaches','Meets','Exceeds'];
     const levelClass = { Approaches:'level-approaches', Meets:'level-meets', Exceeds:'level-exceeds' };
     const criteriaColsHtml = levels.map(lvl => {

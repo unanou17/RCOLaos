@@ -674,7 +674,8 @@ async function loadData() {
          const noteText = notesKey ? String(row[notesKey] || '').replace(/\s+/g, ' ').trim() : '';
 
          if (levelText && critText) {
-            const formattedText = criterionLetter ? `(${criterionLetter}) ${critText}` : critText;
+            const rawText = criterionLetter ? `(${criterionLetter}) ${critText}` : critText;
+            const formattedText = mdBoldToHtml(rawText);
             (liveCriteria[id] = liveCriteria[id] || []).push({
                level: levelText,
                text: formattedText,
@@ -707,6 +708,17 @@ async function loadData() {
 }
 
 // ── HELPERS FOR ORIGINAL DOTS & PILLS ────────────────────────────────────────
+// Convert a sheet cell's markdown bold (**like this**) into <strong> tags.
+// We first escape any HTML so stray <, >, & in the sheet can't inject markup,
+// then turn paired ** into <strong>…</strong>. Unpaired ** are left as-is.
+function mdBoldToHtml(str) {
+  const escaped = String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  return escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+
 function dotClass(s) {
   if(!s) return 'dot-not-assessed';
   const l = s.toLowerCase();

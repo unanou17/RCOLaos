@@ -306,7 +306,7 @@
     <span class="header-badge">Lao PDR</span>
   </div>
   <div class="header-right">
-    <a href="gender_scorecard_v2.html" class="back-home-link">← Back to home</a>
+    <a href="gender_scorecard.html" class="back-home-link">← Back to home</a>
   </div>
 </header>
 
@@ -639,21 +639,6 @@ async function loadData() {
         PI_META[id].criteria = liveCriteria[id];
       }
     });
-
-    // Diagnostic: confirms what was actually fetched and matched. Safe to
-    // leave in — it only logs to console, never shown in the UI. Remove
-    // once live criteria are confirmed working end-to-end.
-    console.log(
-      `[Criteria fetch] ${critParsed.length} rows in CSV, ` +
-      `${Object.keys(liveCriteria).length} indicators matched ` +
-      `(${Object.values(liveCriteria).reduce((sum, arr) => sum + arr.length, 0)} total criteria rows applied).`
-    );
-    if (critParsed.length > 0 && Object.keys(liveCriteria).length === 0) {
-      console.warn(
-        '[Criteria fetch] CSV returned rows but none matched any PI_META id. ' +
-        'Sample row from sheet:', critParsed[0]
-      );
-    }
   } catch(e) {
     console.warn("Live criteria fetch failed — using built-in criteria as fallback.", e);
   }

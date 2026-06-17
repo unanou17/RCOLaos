@@ -424,17 +424,18 @@ const PI_META = {
   "PI 1.2": {
     title: "Gender Equality Mainstreamed in UNSDCF Outcomes",
     summary: "The UNSDCF outcomes must reflect a commitment to gender equality either by mainstreaming GEWE across all outcomes or by including at least one dedicated gender equality outcome.",
-    levelRules: { Meets: "Either criterion below", Exceeds: "Both criteria below — simultaneously" },
+    levelRules: { Meets: "Either criterion below" },
     criteria: [
       {level:"Approaches", text:"(a) GEWE mainstreamed across the majority of UNSDCF outcomes in line with SDG 5.", met:true},
       {level:"Meets",      text:"(a) GEWE mainstreamed across ALL UNSDCF outcomes in line with SDG 5.", met:false},
       {level:"Meets",      text:"OR (b) One UNSDCF outcome specifically targets gender equality (Theory of Change + SDG 5).", met:false},
-      {level:"Exceeds",    text:"(a) GEWE mainstreamed across ALL outcomes AND (b) one specific gender equality outcome. Both must be met simultaneously.", met:false}
+      {level:"Exceeds",    text:"(d) GEWE mainstreamed across ALL outcomes AND one specific gender equality outcome.", met:false}
     ]
   },
   "PI 1.3": {
     title: "UNSDCF Indicators Measure Changes in Gender Equality",
     summary: "The results framework needs enough gender-sensitive indicators to meaningfully track GEWE progress across the UNSDCF cycle. Without these, gender results become invisible in M&E.",
+    noAchievedBar: true,
     criteria: [
       {level:"Approaches", text:"20–33% of UNSDCF outcome and output indicators measure changes in GEWE in line with SDG 5.", met:true},
       {level:"Meets",      text:"33–50% of UNSDCF outcome and output indicators measure changes in GEWE.", met:false},
@@ -504,6 +505,7 @@ const PI_META = {
   "PI 4.2": {
     title: "Organizational Culture Supports Promotion of Gender Equality",
     summary: "Assessed through an annual inter-agency staff perception survey — captures whether UN personnel feel their workplace genuinely supports gender equality promotion.",
+    noAchievedBar: true,
     criteria: [
       {level:"Approaches", text:"Staff perception survey: positive rating of 50–64%.", met:false},
       {level:"Meets",      text:"Staff perception survey: positive rating of 65–80%.", met:true},
@@ -881,8 +883,13 @@ function renderCard(ind) {
   const totalCriteria = meta.criteria.length;
 
   // Achieved Bar (Restored from source 1)
+  // Standalone single-measure indicators (e.g. a survey threshold) don't have
+  // a meaningful "X of Y criteria met" tally — each level is its own bar, not
+  // a checklist to accumulate — so meta.noAchievedBar opts them out of this box.
   let achievedHtml = '';
-  if (latest.toLowerCase().includes('missing') && metCriteria.length === 0) {
+  if (meta.noAchievedBar) {
+    // no achieved bar / missing banner for this indicator
+  } else if (latest.toLowerCase().includes('missing') && metCriteria.length === 0) {
     achievedHtml = `<div class="missing-banner">⚠ No criteria met. Action required to reach Approaches level.</div>`;
   } else if (totalCriteria > 0) {
     const dotsHtml = meta.criteria.map(c => {
@@ -943,6 +950,44 @@ function renderCard(ind) {
           <div class="tier-group-header"><span class="tier-group-label">Exceeds</span><span class="tier-group-rule">requires Meets, plus this</span></div>
           <ul class="tier-group-items">${tierItem(f)}</ul>
         </div>
+      </div>
+    </div>`;
+  } else if (ind.pi_id === 'PI 5.2' && totalCriteria >= 3) {
+    // (a) gates Approaches alone; Meets/Exceeds need (a) plus either or both
+    // of (b)/(c). This doesn't fit the generic "any N of M" pattern (which
+    // would wrongly imply (b) and (c) are interchangeable with (a)), so it
+    // gets its own two-box layout: box 1 = (a), box 2 = (b)/(c).
+    const [a, b, c] = meta.criteria;
+    const approachesMet = a.met;
+    const meetsMet = a.met && (b.met || c.met);
+    const exceedsMet = a.met && b.met && c.met;
+
+    let computedLevel = 'Missing';
+    if (exceedsMet) computedLevel = 'Exceeds';
+    else if (meetsMet) computedLevel = 'Meets';
+    else if (approachesMet) computedLevel = 'Approaches';
+
+    const tierItem = (item) => `<li class="tier-item ${item.met ? 'is-met' : ''}">
+      <span class="criteria-check ${item.met ? 'check-met' : 'check-unmet'}">${item.met ? '✓' : '○'}</span>
+      <span class="tier-item-text">${item.text}</span>
+    </li>`;
+
+    criteriaHtml = `<div class="criteria-section">
+      <div class="criteria-title">Scoring Criteria</div>
+      <div class="threshold-count">${metCriteria.length} of ${totalCriteria} criteria met &middot; computed level: <span class="status-pill ${pillClass(computedLevel)}" style="font-size:0.68rem;padding:0.15rem 0.5rem;">${computedLevel}</span></div>
+      <div class="tier-groups">
+        <div class="tier-group">
+          <div class="tier-group-header"><span class="tier-group-label">Approaches</span></div>
+          <ul class="tier-group-items">${tierItem(a)}</ul>
+        </div>
+        <div class="tier-group">
+          <div class="tier-group-header"><span class="tier-group-label">Meets / Exceeds</span></div>
+          <ul class="tier-group-items">${tierItem(b)}${tierItem(c)}</ul>
+        </div>
+      </div>
+      <div class="threshold-legend">
+        <span>To Meet: (a) AND any of (b) OR (c)</span>
+        <span>To Exceed: ALL of (a), (b), (c)</span>
       </div>
     </div>`;
   } else if (threshold && totalCriteria > 0) {

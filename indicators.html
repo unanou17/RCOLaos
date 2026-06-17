@@ -265,9 +265,19 @@
   .threshold-list { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 1.1rem; }
   .threshold-item { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.85rem; line-height: 1.5; }
   .threshold-item-text { color: var(--text); }
-  .threshold-item.is-unmet .threshold-item-text { color: var(--text-muted); }
+  .threshold-item.is-met .threshold-item-text { opacity: 0.6; }
   .threshold-legend { display: flex; flex-wrap: wrap; gap: 1.1rem; padding-top: 0.9rem; border-top: 1px solid var(--border); font-size: 0.72rem; color: var(--text-muted); }
   .threshold-count { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.9rem; }
+
+  /* tiered-group criteria (PI 6.1 special case: sequential gates, middle tier is N-of-M) */
+  .tier-groups { display: flex; flex-direction: column; gap: 0.85rem; }
+  .tier-group { background: var(--bg); border-radius: 8px; padding: 0.85rem 1rem; }
+  .tier-group-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.6rem; }
+  .tier-group-label { font-size: 0.78rem; font-weight: 600; }
+  .tier-group-rule { font-size: 0.68rem; color: var(--text-muted); }
+  .tier-group-items { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .tier-item { display: flex; gap: 0.55rem; align-items: flex-start; font-size: 0.81rem; line-height: 1.5; }
+  .tier-item.is-met .tier-item-text { opacity: 0.6; }
 
   /* empty state */
   .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
@@ -523,9 +533,12 @@ const PI_META = {
     title: "Adequate Resources for Gender Mainstreaming are Allocated and Tracked",
     summary: "All sub-outputs in Joint Work Plans must be coded using the UNCT Gender Equality Marker (GEM), with at least one training event. Meeting the global 70% financial target is required to move beyond Approaches.",
     criteria: [
-      {level:"Approaches", text:"(a) UNCT carried out ≥1 capacity-building event on the UNCT-GEM in the current CF cycle. AND (b) UNCT applied the UNCT-GEM to all sub-outputs in the Joint Work Plan. Both required.", met:false},
-      {level:"Meets",      text:"TWO of: (c) UNCT met the common global financial target for GEWE allocations; (d) GEM 1/2/3 sub-outputs include accurate Gender Marker Narrative; (e) GTG completed a quality assurance review of GEM coding.", met:false},
-      {level:"Exceeds",    text:"(f) UNCT has exceeded the common global financial target for UNCT allocations to GEWE.", met:false}
+      {text:"(a) UNCT carried out at least one capacity-building event on the UNCT Gender Equality Marker in current CF cycle.", met:false},
+      {text:"(b) UNCT applied the UNCT-GEM to all sub-outputs in the Joint Work Plan.", met:false},
+      {text:"(c) UNCT met the common global financial target for UNCT allocations to GEWE.", met:false},
+      {text:"(d) Sub-outputs coded GEM 1/2/3 include an accurate Gender Marker Narrative.", met:false},
+      {text:"(e) GTG completed a quality assurance review of UNCT-GEM coding during Joint Work Plan drafting.", met:false},
+      {text:"(f) UNCT has exceeded the common global financial target for UNCT allocations to GEWE.", met:false}
     ]
   },
   "PI 7.1": {
@@ -863,22 +876,61 @@ function renderCard(ind) {
     </div>`;
   }
 
-  // Criteria Table — two display modes.
-  // Threshold indicators (PI_META criteria carry no per-level distinction;
-  // the same criteria list applies at every level, only the required count
-  // changes) get a single checklist instead of 3 repeated columns, so the
-  // UI never implies criterion (a) must be met before (b) or (c).
+  // Criteria Table — three display modes.
+  // 1) PI 6.1 special case: a hybrid shape (sequential gates, but the middle
+  //    tier needs any-2-of-3) that doesn't fit either general pattern below.
+  //    Hardcoded rather than generalized, since it's a one-off.
+  // 2) Threshold indicators: same criteria list at every level, only the
+  //    required count changes — single checklist instead of 3 columns.
+  // 3) Everything else: original fixed per-level 3-column display.
   let criteriaHtml = '';
   const threshold = THRESHOLD_INDICATORS[ind.pi_id];
 
-  if (threshold && totalCriteria > 0) {
+  if (ind.pi_id === 'PI 6.1' && totalCriteria >= 6) {
+    // Criteria are stored in fixed order: a, b (Approaches, both required),
+    // c, d, e (Meets, any 2 of 3), f (Exceeds, requires this specifically).
+    const [a, b, c, d, e, f] = meta.criteria;
+    const approachesMet = a.met && b.met;
+    const meetsCount = [c, d, e].filter(x => x.met).length;
+    const meetsMet = approachesMet && meetsCount >= 2;
+    const exceedsMet = meetsMet && f.met;
+
+    let computedLevel = 'Missing';
+    if (exceedsMet) computedLevel = 'Exceeds';
+    else if (meetsMet) computedLevel = 'Meets';
+    else if (approachesMet) computedLevel = 'Approaches';
+
+    const tierItem = (item) => `<li class="tier-item ${item.met ? 'is-met' : ''}">
+      <span class="criteria-check ${item.met ? 'check-met' : 'check-unmet'}">${item.met ? '✓' : '○'}</span>
+      <span class="tier-item-text">${item.text}</span>
+    </li>`;
+
+    criteriaHtml = `<div class="criteria-section">
+      <div class="criteria-title">Scoring Criteria</div>
+      <div class="threshold-count">${metCriteria.length} of ${totalCriteria} criteria met &middot; computed level: <span class="status-pill ${pillClass(computedLevel)}" style="font-size:0.68rem;padding:0.15rem 0.5rem;">${computedLevel}</span></div>
+      <div class="tier-groups">
+        <div class="tier-group">
+          <div class="tier-group-header"><span class="tier-group-label">Approaches</span><span class="tier-group-rule">both required</span></div>
+          <ul class="tier-group-items">${tierItem(a)}${tierItem(b)}</ul>
+        </div>
+        <div class="tier-group">
+          <div class="tier-group-header"><span class="tier-group-label">Meets</span><span class="tier-group-rule">requires Approaches, plus any 2 of 3</span></div>
+          <ul class="tier-group-items">${tierItem(c)}${tierItem(d)}${tierItem(e)}</ul>
+        </div>
+        <div class="tier-group">
+          <div class="tier-group-header"><span class="tier-group-label">Exceeds</span><span class="tier-group-rule">requires Meets, plus this</span></div>
+          <ul class="tier-group-items">${tierItem(f)}</ul>
+        </div>
+      </div>
+    </div>`;
+  } else if (threshold && totalCriteria > 0) {
     const metCount = metCriteria.length;
     let computedLevel = 'Missing';
     if (metCount >= threshold.exceeds) computedLevel = 'Exceeds';
     else if (metCount >= threshold.meets) computedLevel = 'Meets';
     else if (metCount >= threshold.approaches) computedLevel = 'Approaches';
 
-    const itemsHtml = meta.criteria.map(c => `<li class="threshold-item ${c.met ? '' : 'is-unmet'}">
+    const itemsHtml = meta.criteria.map(c => `<li class="threshold-item ${c.met ? 'is-met' : ''}">
       <span class="criteria-check ${c.met ? 'check-met' : 'check-unmet'}">${c.met ? '✓' : '○'}</span>
       <span class="threshold-item-text">${c.text}</span>
     </li>`).join('');

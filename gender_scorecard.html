@@ -27,7 +27,7 @@
     --border: #e8e4df;
     --text: #1a1614;
     --text-muted: #6b6560;
-    --accent: #009EDB;
+    --accent: #5A383C;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,7 +41,7 @@
 
   /* HEADER */
   .site-header {
-    background: #1a1f2b;
+    background: #392427;
     color: #fff;
     padding: 0 2rem;
     position: sticky;
@@ -117,7 +117,7 @@
 
   /* HERO */
   .hero {
-    background: linear-gradient(135deg, #1a1f2b 55%, #00557a 100%);
+    background: linear-gradient(135deg, #392427 55%, #5A383C 100%);
     padding: 2.5rem 2rem;
     position: relative;
     overflow: hidden;
@@ -174,7 +174,7 @@
     transition: background 0.15s, transform 0.15s;
   }
   .hero-cta:hover {
-    background: #007BAD;
+    background: #472D30;
     transform: translateY(-1px);
   }
   .hero-buttons {
@@ -185,12 +185,12 @@
   }
   .hero-cta-alt {
     background: transparent;
-    border: 1.5px solid var(--accent);
-    color: var(--accent);
+    border: 1.5px solid #FFA0AC;
+    color: #FFA0AC;
   }
   .hero-cta-alt:hover {
-    background: var(--accent);
-    color: #fff;
+    background: #FFA0AC;
+    color: #392427;
   }
 
   /* SUMMARY CARDS */
@@ -364,7 +364,7 @@
     align-items: center;
     gap: 0.25rem;
     padding: 3px 10px;
-    border: 1.5px solid #5cc4ec;
+    border: 1.5px solid #FFA0AC;
     border-radius: 99px;
     transition: all 0.15s;
     background: transparent;
@@ -955,6 +955,16 @@ async function downloadScorecardPDF() {
   if (headerActions) headerActions.style.display = 'none';
 
   try {
+    // Load the UN logo so we can stamp it into the top-right corner of the
+    // exported PDF (the on-screen header has it top-left, but the PDF
+    // doesn't capture the header bar at all, so it needs to be added here).
+    const logoImg = new Image();
+    const logoReady = new Promise(resolve => {
+      logoImg.onload = () => resolve(true);
+      logoImg.onerror = () => resolve(false);
+    });
+    logoImg.src = 'un_logo_lao.png';
+
     // Capture the hero card (title + KPI cards). The hero card background
     // is now transparent and blends into the dark gradient hero section,
     // so capture it with that same dark background to keep the white text
@@ -962,7 +972,7 @@ async function downloadScorecardPDF() {
     const captureOpts = {
       scale: 2,
       useCORS: true,
-      backgroundColor: '#1a1f2b',
+      backgroundColor: '#392427',
       windowWidth: document.documentElement.scrollWidth,
       windowHeight: document.documentElement.scrollHeight
     };
@@ -982,7 +992,7 @@ async function downloadScorecardPDF() {
     combined.width = targetWidth;
     combined.height = scaledHeroHeight + scaledMainHeight;
     const ctx = combined.getContext('2d');
-    ctx.fillStyle = '#1a1f2b';
+    ctx.fillStyle = '#392427';
     ctx.fillRect(0, 0, combined.width, combined.height);
     let yOffset = 0;
     if (heroCanvas) {
@@ -1014,6 +1024,18 @@ async function downloadScorecardPDF() {
     const y = (pageHeight - finalHeight) / 2;
 
     pdf.addImage(imgData, 'JPEG', x, y, finalWidth, finalHeight);
+
+    // Stamp the UN logo in the top-right corner of the page, over the dark
+    // hero band at the top of the captured content.
+    const logoOk = await logoReady;
+    if (logoOk && logoImg.naturalWidth && logoImg.naturalHeight) {
+      const logoHeightMM = 9;
+      const logoWidthMM = logoHeightMM * (logoImg.naturalWidth / logoImg.naturalHeight);
+      const logoInset = 6; // mm from the page edges
+      const logoX = pageWidth - margin - logoInset - logoWidthMM;
+      const logoY = margin + logoInset / 2;
+      pdf.addImage(logoImg, 'PNG', logoX, logoY, logoWidthMM, logoHeightMM);
+    }
 
     const today = new Date().toISOString().slice(0, 10);
     pdf.save(`UNCT-SWAP_Gender_Scorecard_LaoPDR_${today}.pdf`);

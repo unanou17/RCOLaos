@@ -203,7 +203,7 @@
     margin: 0 0 0.85rem;
     font-weight: 400;
   }
-  .kpi-instruction svg { color: var(--accent); flex-shrink: 0; }
+  .kpi-instruction svg { color: #FFA0AC; flex-shrink: 0; }
   .summary-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -676,19 +676,32 @@
 
 <section class="hero">
   <div class="hero-card">
-    <p class="hero-label">Performance Indicator Dashboard</p>
-    <h2>Gender Equality<br><em>Progress Overview</em></h2>
-    <p>Live view of UNCT-SWAP scorecard indicators across seven dimensions. Data sourced from the Indicator Data tab of the shared workbook.</p>
-    <div class="hero-buttons">
-      <a href="indicators.html" class="hero-cta">Explore all indicators →</a>
-      <a href="https://drive.google.com/drive/folders/1D3WGTaAHnxWLe7TomJO9Zsh1hIaS6Oir?usp=sharing" target="_blank" rel="noopener" class="hero-cta hero-cta-alt">Resources ↗</a>
+
+    <!-- Section 1: Title block -->
+    <div class="hero-intro">
+      <p class="hero-label">Performance Indicator Dashboard</p>
+      <h2>Gender Equality<br><em>Progress Overview</em></h2>
+      <p>Live view of UNCT-SWAP scorecard indicators across seven dimensions. Data sourced from the Indicator Data tab of the shared workbook.</p>
     </div>
-    <p class="kpi-instruction">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Click any card below to view the indicators behind that score
-    </p>
-    <div class="summary-grid" id="summary-grid">
+
+    <!-- Section 2: Buttons + instruction block -->
+    <div class="hero-actions">
+      <div class="hero-buttons">
+        <a href="indicators.html" class="hero-cta">Explore all indicators →</a>
+        <a href="https://drive.google.com/drive/folders/1D3WGTaAHnxWLe7TomJO9Zsh1hIaS6Oir?usp=sharing" target="_blank" rel="noopener" class="hero-cta hero-cta-alt">Resources ↗</a>
       </div>
+      <p class="kpi-instruction">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Click any card below to view the indicators behind that score
+      </p>
+    </div>
+
+    <!-- Section 3: KPI summary cards block -->
+    <div class="hero-summary">
+      <div class="summary-grid" id="summary-grid">
+        </div>
+    </div>
+
   </div>
 </section>
 
@@ -943,6 +956,7 @@ async function downloadScorecardPDF() {
   const printBtn = document.getElementById('print-btn');
   const headerActions = document.getElementById('header-actions');
   const heroCardEl = document.querySelector('.hero-card');
+  const heroActionsEl = document.querySelector('.hero-actions');
   const mainEl = document.querySelector('main.main');
   if (!printBtn || !mainEl || typeof html2canvas === 'undefined' || !window.jspdf) return;
 
@@ -953,6 +967,10 @@ async function downloadScorecardPDF() {
   // Hide the header buttons while we capture the page so they don't appear in the export
   const prevDisplay = headerActions ? headerActions.style.display : '';
   if (headerActions) headerActions.style.display = 'none';
+
+  // Hide the hero buttons/instruction row too — not wanted in the PDF export
+  const prevHeroActionsDisplay = heroActionsEl ? heroActionsEl.style.display : '';
+  if (heroActionsEl) heroActionsEl.style.display = 'none';
 
   try {
     // Load the UN logo so we can stamp it into the top-right corner of the
@@ -1044,6 +1062,7 @@ async function downloadScorecardPDF() {
     alert('Sorry, something went wrong while generating the PDF. Please try again.');
   } finally {
     if (headerActions) headerActions.style.display = prevDisplay;
+    if (heroActionsEl) heroActionsEl.style.display = prevHeroActionsDisplay;
     printBtn.disabled = false;
     printBtn.innerHTML = originalHTML;
   }

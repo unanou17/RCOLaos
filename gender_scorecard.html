@@ -387,6 +387,8 @@
     position: relative;
     transition: transform 0.15s, box-shadow 0.15s;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   .indicator-card:hover {
     transform: translateY(-2px);
@@ -684,7 +686,7 @@
   }
   .focus-card { text-decoration: none; color: inherit; display: block; }
   .focus-foot {
-    margin-top: 0.9rem;
+    margin-top: auto;
     padding-top: 0.75rem;
     border-top: 1px solid var(--border);
     display: flex;
@@ -1213,8 +1215,8 @@ function buildAssessmentHistory() {
     const events = byYear[yr].slice().sort((a, b) => piSortKey(a.pi_id) - piSortKey(b.pi_id));
     const headerRow = `
       <tr style="background:var(--bg);">
-        <td colspan="3" style="padding:10px 10px 6px; font-size:0.8rem; font-weight:700; color:var(--text-muted); letter-spacing:0.06em; border-bottom:1px solid var(--border);">
-          ${yr} &nbsp;·&nbsp; <span style="font-weight:400;">${events.length} indicator${events.length !== 1 ? 's' : ''} assessed</span>
+        <td colspan="3" style="padding:18px 10px 10px; font-size:1rem; font-weight:700; color:var(--text); letter-spacing:0.02em; border-bottom:1px solid var(--border);">
+          ${yr} &nbsp;·&nbsp; <span style="font-weight:400; font-size:0.82rem; color:var(--text-muted);">${events.length} indicator${events.length !== 1 ? 's' : ''} assessed</span>
         </td>
       </tr>`;
     const dataRows = events.map(ev => {

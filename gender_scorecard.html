@@ -1405,12 +1405,20 @@ async function downloadScorecardPDF() {
     const usableW    = pageWidth  - margin * 2;
     const usableH    = pageHeight - margin * 2;
 
-    // Place page 1 image
-    const p1Scale  = Math.min(usableW / p1Canvas.width, usableH / p1Canvas.height);
-    const p1W      = p1Canvas.width  * p1Scale;
+    // Place page 1 image — fit to full page WIDTH (like page 2), then slice
+    // across multiple PDF pages vertically so the tall hero+main stack fills
+    // the width instead of being shrunk to fit one page's height.
+    const p1Scale  = usableW / p1Canvas.width;
+    const p1W      = usableW;
     const p1H      = p1Canvas.height * p1Scale;
-    const p1X      = (pageWidth - p1W) / 2;
-    pdf.addImage(p1Canvas.toDataURL('image/jpeg', 0.95), 'JPEG', p1X, margin, p1W, p1H);
+    const p1X      = margin;
+    const p1Data   = p1Canvas.toDataURL('image/jpeg', 0.95);
+
+    const p1PageCount = Math.max(1, Math.ceil(p1H / usableH));
+    for (let k = 0; k < p1PageCount; k++) {
+      if (k > 0) pdf.addPage();
+      pdf.addImage(p1Data, 'JPEG', p1X, margin - k * usableH, p1W, p1H);
+    }
 
     // Stamp UN logo on page 1
     const logoOk = await logoReady;

@@ -633,6 +633,83 @@
   .cell-list li:last-child { margin-bottom: 0; }
   .cell-text { white-space: pre-line; }
 
+  /* SECTION SUBTITLE (shared by the two new sections) */
+  .section-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: -0.85rem 0 1.6rem;
+    max-width: 720px;
+  }
+
+  /* FOCUS THIS YEAR */
+  .focus-section { margin-bottom: 3rem; }
+  .focus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .focus-card { text-decoration: none; color: inherit; display: block; }
+  .focus-foot {
+    margin-top: 0.9rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+  .focus-view { color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .focus-card:hover .focus-view { text-decoration: underline; }
+  .focus-empty {
+    background: var(--meets-bg);
+    color: var(--meets);
+    border: 1px solid var(--meets-bg);
+    border-left: 3px solid var(--meets-mid);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    font-weight: 500;
+  }
+
+  /* ASSESSMENT HISTORY */
+  .assess-section { margin-bottom: 3rem; }
+  .assess-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .assess-table th {
+    padding: 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .assess-table td {
+    padding: 10px;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .assess-table tr:last-child td { border-bottom: none; }
+  .assess-name { color: var(--text-muted); font-size: 0.78rem; }
+  .yr-cell { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; white-space: nowrap; }
+  .yr-cell .trend-dot { width: 9px; height: 9px; }
+  .yr-na { color: var(--text-muted); opacity: 0.55; }
+  .move-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 11px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+  .move-up { color: var(--meets); background: var(--meets-bg); }
+  .move-down { color: var(--missing); background: var(--missing-bg); }
+  .move-flat { color: var(--text-muted); background: var(--border); }
+  .move-baseline { color: var(--accent); background: rgba(90,56,60,0.09); }
+
   @media (max-width: 760px) {
     .site-header { padding: 0 1rem; }
     .header-divider, .site-header h1 { display: none; }
@@ -706,10 +783,42 @@
 </section>
 
 <main class="main">
+
+  <!-- Indicators to Focus This Year -->
+  <div class="focus-section">
+    <div class="section-title">Potential Indicators to Assess in 2026</div>
+    <p class="section-subtitle" id="focus-subtitle"></p>
+    <div class="focus-grid" id="focus-grid"></div>
+  </div>
+
+  <!-- Assessment History — past 3 years -->
+  <div class="assess-section">
+    <div class="section-title">Assessment History · Past 3 Years</div>
+    <p class="section-subtitle">All 15 indicators were first assessed in 2022 (baseline year, not shown here). This table covers 2023–2025 reassessment cycles only — indicators not listed in a given year had their previous rating carried forward and were not actively reassessed that cycle.</p>
+    <div style="overflow-x:auto;">
+      <table class="assess-table">
+        <thead>
+          <tr>
+            <th>Indicator</th>
+            <th>Status change</th>
+            <th>Movement</th>
+          </tr>
+        </thead>
+        <tbody id="assess-tbody"></tbody>
+      </table>
+    </div>
+    <div class="bar-legend" style="margin-top:1.1rem;">
+      <div class="legend-item"><span class="move-chip move-up">▲ Improved</span></div>
+      <div class="legend-item"><span class="move-chip move-flat">— No change</span></div>
+      <div class="legend-item"><span class="move-chip move-down">▼ Declined</span></div>
+      <div class="legend-item"><span class="move-chip move-baseline">◆ Baseline</span></div>
+    </div>
+  </div>
+
   <div class="progress-section">
     <div class="progress-title">Status Distribution by Year — All 15 Indicators</div>
-    <div id="yearly-bars"></div>
-    <div class="bar-legend" style="margin-top:1.25rem;">
+    <div id="yearly-bars" style="margin-bottom:2rem;"></div>
+    <div class="bar-legend" style="margin-top:0; padding-top:1.25rem; border-top:1px solid var(--border);">
       <div class="legend-item"><div class="legend-dot" style="background:var(--exceeds-mid)"></div> Exceeds</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--meets-mid)"></div> Meets</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--approaches-mid)"></div> Approaches</div>
@@ -820,6 +929,8 @@ async function loadData(isRefresh = false) {
 
   // Trigger builders
   buildSummary();
+  buildFocus();
+  buildAssessmentHistory();
   buildYearlyBars();
   buildActivities();
 }
@@ -875,6 +986,210 @@ function buildYearlyBars() {
         <div class="year-bar-track">${segs}</div>
       </div>`;
   }).join('');
+}
+
+// ============================================================
+//  HARDCODED CONTENT — update once per year
+// ------------------------------------------------------------
+//  (1) FOCUS_THIS_YEAR — the curated "focus" list (your Sheet's Focus tab).
+//      Only `pi_id` is required: the name, status, dimension and
+//      last-assessed year are pulled LIVE from the Indicators tab by
+//      matching pi_id, so the status is always current. The optional
+//      fields below are fallbacks used only when the live sheet can't be
+//      reached (e.g. opening the file via file://).
+//
+//  (2) ASSESSMENT_HISTORY — last three assessed years per indicator
+//      (your Sheet's history tab). Use the exact status word
+//      (Exceeds / Meets / Approaches / Missing), or '' for a year that
+//      was NOT assessed. Hardcoding this lets you show only the years
+//      that were truly assessed, which the live year-columns can't
+//      distinguish from carried-forward values.
+//
+//  >>> The rows below are SAMPLE data — replace with your real tables. <<<
+// ============================================================
+const FOCUS_THIS_YEAR = [
+  { pi_id: 'PI 2.3', dimension: 'Programming & M&E'   },
+  { pi_id: 'PI 3.2', dimension: 'Partnerships'         },
+  { pi_id: 'PI 4.1', dimension: 'Leadership'           },
+  { pi_id: 'PI 4.2', dimension: 'Leadership'           },
+  { pi_id: 'PI 4.3', dimension: 'Leadership'           },
+  { pi_id: 'PI 5.2', dimension: 'Financial Resources'  },
+  { pi_id: 'PI 6.1', dimension: 'Gender Architecture'  },
+];
+
+// One entry per indicator per assessed year.
+// `from` blank = first-ever assessment (renders ◆ Baseline chip).
+// Status rank for movement: Missing(0) < Approaches(1) < Meets(2) < Exceeds(3).
+// Note: indicators not listed in a given year had their previous rating
+// carried forward and were not actively reassessed that cycle.
+const ASSESSMENT_EVENTS = [
+  // 2025 — 5 indicators reassessed
+  { year: 2025, pi_id: 'PI 1.1', name: 'Common Country Analysis',        from: 'Approaches', to: 'Approaches' },
+  { year: 2025, pi_id: 'PI 2.2', name: 'Communication & Advocacy',       from: 'Approaches', to: 'Exceeds'    },
+  { year: 2025, pi_id: 'PI 2.3', name: 'UNSDCF Monitoring & Evaluation', from: 'Meets',      to: 'Meets'      },
+  { year: 2025, pi_id: 'PI 4.1', name: 'Leadership for Gender Equality', from: 'Approaches', to: 'Meets'      },
+  { year: 2025, pi_id: 'PI 5.1', name: 'Gender Coordination Mechanism',  from: 'Missing',    to: 'Exceeds'    },
+  // 2024 — 5 indicators reassessed
+  { year: 2024, pi_id: 'PI 1.1', name: 'Common Country Analysis',        from: 'Approaches', to: 'Approaches' },
+  { year: 2024, pi_id: 'PI 2.2', name: 'Communication & Advocacy',       from: 'Meets',      to: 'Approaches' },
+  { year: 2024, pi_id: 'PI 3.1', name: 'Engagement with Government',     from: 'Approaches', to: 'Exceeds'    },
+  { year: 2024, pi_id: 'PI 3.2', name: 'Engagement with GEWE CSOs',      from: 'Exceeds',    to: 'Approaches' },
+  { year: 2024, pi_id: 'PI 4.2', name: 'Organizational Culture',         from: 'Meets',      to: 'Meets'      },
+  // 2023 — 5 indicators reassessed
+  { year: 2023, pi_id: 'PI 1.1', name: 'Common Country Analysis',        from: 'Approaches', to: 'Approaches' },
+  { year: 2023, pi_id: 'PI 2.1', name: 'Joint Programmes',               from: 'Meets',      to: 'Meets'      },
+  { year: 2023, pi_id: 'PI 2.2', name: 'Communication & Advocacy',       from: 'Approaches', to: 'Meets'      },
+  { year: 2023, pi_id: 'PI 3.1', name: 'Engagement with Government',     from: 'Exceeds',    to: 'Approaches' },
+  { year: 2023, pi_id: 'PI 3.2', name: 'Engagement with GEWE CSOs',      from: 'Exceeds',    to: 'Exceeds'    },
+];
+
+// --- SHARED HELPERS (focus + history) ---
+const RANK_BY_KEY = { missing: 0, approaches: 1, meets: 2, exceeds: 3 };
+
+function escHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+// Normalise any status text to a short key, or '' if not a real status.
+function statusKey(s) {
+  const t = String(s || '').trim().toLowerCase();
+  if (t.startsWith('exceed')) return 'exceeds';
+  if (t.startsWith('meet')) return 'meets';
+  if (t.startsWith('approach')) return 'approaches';
+  if (t.startsWith('miss')) return 'missing';
+  return '';
+}
+// "PI 4.1" -> 401 for stable PI-order sorting.
+function piSortKey(piId) {
+  const m = String(piId || '').match(/(\d+)\.(\d+)/);
+  return m ? parseInt(m[1], 10) * 100 + parseInt(m[2], 10) : 9999;
+}
+// "PI 4.1" -> indicators.html#pi-4.1 (mirrors indicators.html anchors).
+function piAnchorHref(piId) {
+  const m = String(piId || '').match(/(\d+(?:\.\d+)?)/);
+  return m ? `indicators.html#pi-${m[1]}` : 'indicators.html';
+}
+
+function buildFocus() {
+  const grid = document.getElementById('focus-grid');
+  const subtitle = document.getElementById('focus-subtitle');
+  if (!grid) return;
+
+  // Index live indicators so the focus list only needs PI IDs.
+  const byId = {};
+  INDICATORS.forEach(i => { byId[String(i.pi_id).trim().toUpperCase()] = i; });
+
+  const items = FOCUS_THIS_YEAR.map(f => {
+    const live = byId[String(f.pi_id).trim().toUpperCase()];
+    return {
+      pi_id: f.pi_id,
+      name: (live && live.indicator_name) || f.name || '',
+      status: (live && live.latest_status) || f.status || '',
+      dimension: (live && live.dimension) || f.dimension || '',
+      last_assessed: (live && live.last_assessed) || f.last_assessed || ''
+    };
+  }).sort((a, b) => piSortKey(a.pi_id) - piSortKey(b.pi_id));
+
+  if (subtitle) {
+    subtitle.textContent = items.length
+      ? `${items.length} indicator${items.length > 1 ? 's' : ''} identified for potential assessment in 2026. Each will be assessed at year-end if sufficient supporting evidence is available and a status improvement is likely.`
+      : 'No indicators are flagged for focus this year.';
+  }
+
+  if (!items.length) {
+    grid.innerHTML = `<div class="focus-empty">Nothing flagged for this year — every indicator is currently on track.</div>`;
+    return;
+  }
+
+  grid.innerHTML = items.map(it => {
+    const k = statusKey(it.status);
+    const pillClass = k ? `pill-${k}` : '';
+    return `
+    <a class="indicator-card focus-card ${k}" href="${piAnchorHref(it.pi_id)}" title="View ${escHtml(it.pi_id)} details">
+      <span class="card-accent"></span>
+      <div class="card-top">
+        <span class="pi-id">${escHtml(it.pi_id)}</span>
+        <span class="status-pill ${pillClass}">${escHtml(it.status || '—')}</span>
+      </div>
+      <div class="indicator-name">${escHtml(it.name)}</div>
+      ${it.dimension ? `<div class="card-meta">◧ ${escHtml(it.dimension)}</div>` : ''}
+      <div class="focus-foot">
+        <span>${it.last_assessed ? 'Last assessed: ' + escHtml(it.last_assessed) : ''}</span>
+        <span class="focus-view">Explore →</span>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function buildAssessmentHistory() {
+  const tbody = document.getElementById('assess-tbody');
+  if (!tbody) return;
+
+  const byId = {};
+  INDICATORS.forEach(i => { byId[String(i.pi_id).trim().toUpperCase()] = i; });
+
+  const byYear = {};
+  ASSESSMENT_EVENTS.forEach(ev => {
+    if (!byYear[ev.year]) byYear[ev.year] = [];
+    byYear[ev.year].push(ev);
+  });
+  const years = Object.keys(byYear).map(Number).sort((a, b) => b - a);
+
+  // Render a status pill for the "Status change" column.
+  const statusPill = (rawStatus) => {
+    const k = statusKey(rawStatus);
+    if (!k) return '';
+    const label = String(rawStatus).trim();
+    return `<span class="status-pill pill-${k}">${escHtml(label)}</span>`;
+  };
+
+  // Build movement chip from a single event's from→to.
+  const moveChip = (from, to) => {
+    const fromKey = statusKey(from);
+    if (!fromKey) return `<span class="move-chip move-baseline">◆ Baseline</span>`;
+    const toKey = statusKey(to);
+    if (!toKey) return `<span class="move-chip move-flat">— No change</span>`;
+    const diff = RANK_BY_KEY[toKey] - RANK_BY_KEY[fromKey];
+    if (diff > 0) return `<span class="move-chip move-up">▲ Improved</span>`;
+    if (diff < 0) return `<span class="move-chip move-down">▼ Declined</span>`;
+    return `<span class="move-chip move-flat">— No change</span>`;
+  };
+
+  // Status change cell: "First assessment → [pill]" or "[pill] → [pill]"
+  const statusChangeCell = (from, to) => {
+    const fromKey = statusKey(from);
+    const toPill = statusPill(to);
+    if (!fromKey) return `<span style="color:var(--text-muted);font-size:0.82rem;">First assessment</span> → ${toPill}`;
+    return `${statusPill(from)} → ${toPill}`;
+  };
+
+  const rows = years.map(yr => {
+    const events = byYear[yr].slice().sort((a, b) => piSortKey(a.pi_id) - piSortKey(b.pi_id));
+    const headerRow = `
+      <tr style="background:var(--bg);">
+        <td colspan="3" style="padding:10px 10px 6px; font-size:0.8rem; font-weight:700; color:var(--text-muted); letter-spacing:0.06em; border-bottom:1px solid var(--border);">
+          ${yr} &nbsp;·&nbsp; <span style="font-weight:400;">${events.length} indicator${events.length !== 1 ? 's' : ''} assessed</span>
+        </td>
+      </tr>`;
+    const dataRows = events.map(ev => {
+      const live = byId[String(ev.pi_id).trim().toUpperCase()];
+      const name = (live && live.indicator_name) || ev.name || '';
+      return `
+      <tr>
+        <td>
+          <a class="pi-link" href="${piAnchorHref(ev.pi_id)}"><strong>${escHtml(ev.pi_id)}</strong></a>
+          ${name ? `<div class="assess-name">${escHtml(name)}</div>` : ''}
+        </td>
+        <td style="white-space:nowrap;">${statusChangeCell(ev.from, ev.to)}</td>
+        <td>${moveChip(ev.from, ev.to)}</td>
+      </tr>`;
+    }).join('');
+    return headerRow + dataRows;
+  }).join('');
+
+  tbody.innerHTML = rows;
 }
 
 // Build a deep-link from an Activities PI code to its detail card in indicators.html.

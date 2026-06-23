@@ -1218,7 +1218,7 @@ function buildAssessmentHistory() {
   const rows = years.map(yr => {
     const events = byYear[yr].slice().sort((a, b) => piSortKey(a.pi_id) - piSortKey(b.pi_id));
     const headerRow = `
-      <tr style="background:var(--bg);">
+      <tr class="assess-year-row" data-year="${yr}" style="background:var(--bg);">
         <td colspan="3" style="padding:18px 10px 10px; font-size:1rem; font-weight:700; color:var(--text); letter-spacing:0.02em; border-bottom:1px solid var(--border);">
           ${yr} &nbsp;·&nbsp; <span style="font-weight:400; font-size:0.82rem; color:var(--text-muted);">${events.length} indicator${events.length !== 1 ? 's' : ''} assessed</span>
         </td>
@@ -1365,32 +1365,69 @@ async function downloadScorecardPDF() {
       windowHeight: document.documentElement.scrollHeight
     };
 
-    // ── PAGE 1: hero + all main sections except activities ──────────────────
-    if (activitiesEl) activitiesEl.style.display = 'none';
+    const lightOpts = { ...captureOpts, backgroundColor: '#fafaf8' };
 
-    const heroCanvas = heroCardEl ? await html2canvas(heroCardEl, captureOpts) : null;
-    const mainCanvas = await html2canvas(mainEl, { ...captureOpts, backgroundColor: '#fafaf8' });
+    // Section elements (captured individually so we control page breaks)
+    const focusEl    = document.querySelector('.focus-section');
+    const assessEl   = document.querySelector('.assess-section');
+    const progressEl = document.querySelector('.progress-section');
 
-    if (activitiesEl) activitiesEl.style.display = prevActivitiesDisplay;
+    // Measure the history table's 2025/2024 boundary BEFORE capture
+    const assessRect = assessEl ? assessEl.getBoundingClientRect() : null;
+    const yearRows   = assessEl ? assessEl.querySelectorAll('tr[data-year]') : [];
 
-    // Stack hero + main onto a shared-width canvas (prevents black-gap artifact)
-    const targetWidth = Math.max(heroCanvas ? heroCanvas.width : 0, mainCanvas.width);
-    const scaledHeroHeight = heroCanvas ? Math.round(heroCanvas.height * (targetWidth / heroCanvas.width)) : 0;
-    const scaledMainHeight = Math.round(mainCanvas.height * (targetWidth / mainCanvas.width));
+    // Capture each block
+    const heroCanvas       = heroCardEl   ? await html2canvas(heroCardEl, captureOpts) : null;
+    const focusCanvas      = focusEl      ? await html2canvas(focusEl, lightOpts)      : null;
+    const assessCanvas     = assessEl     ? await html2canvas(assessEl, lightOpts)     : null;
+    const progressCanvas   = progressEl   ? await html2canvas(progressEl, lightOpts)   : null;
+    const activitiesCanvas = activitiesEl ? await html2canvas(activitiesEl, lightOpts) : null;
 
-    const p1Canvas = document.createElement('canvas');
-    p1Canvas.width  = targetWidth;
-    p1Canvas.height = scaledHeroHeight + scaledMainHeight;
-    const p1Ctx = p1Canvas.getContext('2d');
-    p1Ctx.fillStyle = '#392427';
-    p1Ctx.fillRect(0, 0, p1Canvas.width, p1Canvas.height);
-    if (heroCanvas) p1Ctx.drawImage(heroCanvas, 0, 0, targetWidth, scaledHeroHeight);
-    p1Ctx.drawImage(mainCanvas, 0, scaledHeroHeight, targetWidth, scaledMainHeight);
+    // --- helpers: slice a canvas horizontally, stack canvases vertically ---
+    function sliceCanvas(src, sy, sh) {
+      sy = Math.max(0, Math.round(sy));
+      sh = Math.max(1, Math.round(sh));
+      const c = document.createElement('canvas');
+      c.width = src.width; c.height = sh;
+      c.getContext('2d').drawImage(src, 0, sy, src.width, sh, 0, 0, src.width, sh);
+      return c;
+    }
+    function stackCanvases(parts, bg, gap) {
+      gap = gap || 0;
+      const tw = Math.max(...parts.map(c => c.width));
+      const hs = parts.map(c => Math.round(c.height * (tw / c.width)));
+      const total = hs.reduce((a, b) => a + b, 0) + gap * (parts.length - 1);
+      const out = document.createElement('canvas');
+      out.width = tw; out.height = total;
+      const ctx = out.getContext('2d');
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, tw, total);
+      let y = 0;
+      parts.forEach((c, i) => { ctx.drawImage(c, 0, y, tw, hs[i]); y += hs[i] + gap; });
+      return out;
+    }
 
-    // ── PAGE 2: activities only ─────────────────────────────────────────────
-    const p2Canvas = activitiesEl
-      ? await html2canvas(activitiesEl, { ...captureOpts, backgroundColor: '#fafaf8' })
-      : null;
+    // Split the history table at the 2nd year group (2024 and earlier)
+    let assessTopCanvas = assessCanvas, assessBottomCanvas = null;
+    if (assessCanvas && assessRect && yearRows.length >= 2) {
+      const offsetCss = yearRows[1].getBoundingClientRect().top - assessRect.top;
+      const ratio = assessCanvas.height / assessRect.height;
+      const boundary = offsetCss * ratio;
+      assessTopCanvas    = sliceCanvas(assessCanvas, 0, boundary);
+      assessBottomCanvas = sliceCanvas(assessCanvas, boundary, assessCanvas.height - boundary);
+    }
+
+    const GAP = 30; // px gap between stacked blocks (~15px on screen)
+
+    // ── PAGE 1: hero + focus + history through 2025 ──
+    const p1Canvas = stackCanvases(
+      [heroCanvas, focusCanvas, assessTopCanvas].filter(Boolean), '#fafaf8', GAP);
+
+    // ── PAGE 2: history 2024 & earlier + status-distribution chart ──
+    const page2Parts = [assessBottomCanvas, progressCanvas].filter(Boolean);
+    const p2Canvas = page2Parts.length ? stackCanvases(page2Parts, '#fafaf8', GAP) : null;
+
+    // ── PAGE 3: activities table ──
+    const p3Canvas = activitiesCanvas;
 
     // ── BUILD PDF ───────────────────────────────────────────────────────────
     const { jsPDF } = window.jspdf;
@@ -1405,46 +1442,46 @@ async function downloadScorecardPDF() {
     const usableW    = pageWidth  - margin * 2;
     const usableH    = pageHeight - margin * 2;
 
-    // Place page 1 image — fit to full page WIDTH (like page 2), then slice
-    // across multiple PDF pages vertically so the tall hero+main stack fills
-    // the width instead of being shrunk to fit one page's height.
-    const p1Scale  = usableW / p1Canvas.width;
-    const p1W      = usableW;
-    const p1H      = p1Canvas.height * p1Scale;
-    const p1X      = margin;
-    const p1Data   = p1Canvas.toDataURL('image/jpeg', 0.95);
+    // Pick ONE common render width for all pages = the widest that still lets
+    // the TALLEST page fit on a single A4 sheet. This guarantees every page has
+    // an identical width AND keeps exactly one physical page per group.
+    const allPages = [p1Canvas, p2Canvas, p3Canvas].filter(Boolean);
+    let renderW = usableW;
+    allPages.forEach(c => { renderW = Math.min(renderW, usableH * (c.width / c.height)); });
 
-    const p1PageCount = Math.max(1, Math.ceil(p1H / usableH));
-    for (let k = 0; k < p1PageCount; k++) {
-      if (k > 0) pdf.addPage();
-      pdf.addImage(p1Data, 'JPEG', p1X, margin - k * usableH, p1W, p1H);
+    function placePage(canvas, startNewPage) {
+      if (startNewPage) pdf.addPage();
+      const w = renderW;
+      const h = renderW * (canvas.height / canvas.width);
+      const x = (pageWidth - w) / 2;
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', x, margin, w, h);
+      return { x, scale: w / canvas.width };
     }
 
-    // Stamp UN logo on page 1
+    // ── PAGE 1: hero + focus + 2025 history (first PDF page already exists) ──
+    const p1 = placePage(p1Canvas, false);
+
+    // Stamp UN logo on page 1 (current page) — anchored to the hero's top-right
     const logoOk = await logoReady;
     if (logoOk && logoImg.naturalWidth && logoImg.naturalHeight) {
       const logoH = 9;
       const logoW = logoH * (logoImg.naturalWidth / logoImg.naturalHeight);
       if (heroCanvas && heroCardRect && heroLabelRect && lastCardRect) {
         const heroCanvasScale = heroCanvas.width / heroCardRect.width;
-        const combinedScale   = targetWidth / heroCanvas.width;
-        const rightEdgePx = (lastCardRect.right  - heroCardRect.left) * heroCanvasScale * combinedScale;
-        const topEdgePx   = (heroLabelRect.top   - heroCardRect.top)  * heroCanvasScale * combinedScale;
-        pdf.addImage(logoImg, 'PNG', p1X + (rightEdgePx * p1Scale) - logoW, margin + (topEdgePx * p1Scale), logoW, logoH);
+        const combinedScale   = p1Canvas.width / heroCanvas.width;
+        const rightEdgePx = (lastCardRect.right - heroCardRect.left) * heroCanvasScale * combinedScale;
+        const topEdgePx   = (heroLabelRect.top  - heroCardRect.top)  * heroCanvasScale * combinedScale;
+        pdf.addImage(logoImg, 'PNG', p1.x + (rightEdgePx * p1.scale) - logoW, margin + (topEdgePx * p1.scale), logoW, logoH);
       } else {
-        pdf.addImage(logoImg, 'PNG', pageWidth - margin - 6 - logoW, margin + 3, logoW, logoH);
+        pdf.addImage(logoImg, 'PNG', p1.x + renderW - 6 - logoW, margin + 3, logoW, logoH);
       }
     }
 
-    // Page 2 — activities
-    if (p2Canvas) {
-      pdf.addPage();
-      const p2Scale = Math.min(usableW / p2Canvas.width, usableH / p2Canvas.height);
-      const p2W     = p2Canvas.width  * p2Scale;
-      const p2H     = p2Canvas.height * p2Scale;
-      const p2X     = (pageWidth - p2W) / 2;
-      pdf.addImage(p2Canvas.toDataURL('image/jpeg', 0.95), 'JPEG', p2X, margin, p2W, p2H);
-    }
+    // ── PAGE 2: 2024 history & earlier + chart ──
+    if (p2Canvas) placePage(p2Canvas, true);
+
+    // ── PAGE 3: activities table ──
+    if (p3Canvas) placePage(p3Canvas, true);
 
     const today = new Date().toISOString().slice(0, 10);
     pdf.save(`UNCT-SWAP_Gender_Scorecard_LaoPDR_${today}.pdf`);

@@ -439,6 +439,27 @@
     align-items: center;
     gap: 0.4rem;
   }
+  .card-action {
+    font-size: 0.74rem;
+    margin-bottom: 0.9rem;
+    padding: 0.4rem 0.65rem;
+    border-left: 2px solid var(--border);
+    border-radius: 0 4px 4px 0;
+    background: rgba(0,0,0,0.025);
+    color: var(--text-muted);
+    line-height: 1.42;
+  }
+  .card-action-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.18rem;
+  }
+  .indicator-card.missing    .card-action { border-left-color: var(--missing-mid);    background: var(--missing-bg);    color: var(--missing); }
+  .indicator-card.approaches .card-action { border-left-color: var(--approaches-mid); background: var(--approaches-bg); color: var(--approaches); }
+  .indicator-card.meets      .card-action { border-left-color: var(--meets-mid); }
 
   /* TREND BAR */
   .trend-label { font-size: 0.68rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
@@ -1014,13 +1035,13 @@ function buildYearlyBars() {
 //  >>> The rows below are SAMPLE data — replace with your real tables. <<<
 // ============================================================
 const FOCUS_THIS_YEAR = [
-  { pi_id: 'PI 2.3', dimension: 'Programming & M&E'   },
-  { pi_id: 'PI 3.2', dimension: 'Partnerships'         },
-  { pi_id: 'PI 4.1', dimension: 'Leadership'           },
-  { pi_id: 'PI 4.2', dimension: 'Leadership'           },
-  { pi_id: 'PI 4.3', dimension: 'Leadership'           },
-  { pi_id: 'PI 5.2', dimension: 'Financial Resources'  },
-  { pi_id: 'PI 6.1', dimension: 'Gender Architecture'  },
+  { pi_id: 'PI 2.3', dimension: 'Programming & M&E',   recommendation: 'Provide MEL Group with gender-sensitive M&E technical training' },
+  { pi_id: 'PI 3.2', dimension: 'Partnerships',         recommendation: 'Engage GEWE CSO in UNSDCF consultations and support CSO gender-related SDG advocacy' },
+  { pi_id: 'PI 4.1', dimension: 'Leadership',           recommendation: 'RC to demonstrate internal championing of gender equality; HOAs to show visible commitment to staff' },
+  { pi_id: 'PI 4.2', dimension: 'Leadership',           recommendation: 'Staff perception survey with positive rating of over 80%' },
+  { pi_id: 'PI 4.3', dimension: 'Leadership',           recommendation: 'Develop and adopt a system-wide UNCT gender parity plan' },
+  { pi_id: 'PI 5.2', dimension: 'Financial Resources',  recommendation: 'Organize ≥1 inter-agency gender capacity development activity this year' },
+  { pi_id: 'PI 6.1', dimension: 'Gender Architecture',  recommendation: 'Conduct ≥1 UNCT-GEM capacity-building event in the current CF cycle' },
 ];
 
 // One entry per indicator per assessed year.
@@ -1094,7 +1115,8 @@ function buildFocus() {
       name: (live && live.indicator_name) || f.name || '',
       status: (live && live.latest_status) || f.status || '',
       dimension: (live && live.dimension) || f.dimension || '',
-      last_assessed: (live && live.last_assessed) || f.last_assessed || ''
+      last_assessed: (live && live.last_assessed) || f.last_assessed || '',
+      recommendation: f.recommendation || ''
     };
   }).sort((a, b) => piSortKey(a.pi_id) - piSortKey(b.pi_id));
 
@@ -1123,7 +1145,9 @@ function buildFocus() {
         <span class="status-pill ${pillClass}">${escHtml(it.status || '—')}</span>
       </div>
       <div class="indicator-name">${escHtml(it.name)}</div>
-      ${it.dimension ? `<div class="card-meta">◧ ${escHtml(it.dimension)}</div>` : ''}
+      ${it.recommendation
+        ? `<div class="card-action"><span class="card-action-label">Key action</span>${escHtml(it.recommendation)}</div>`
+        : (it.dimension ? `<div class="card-meta">◧ ${escHtml(it.dimension)}</div>` : '')}
       <div class="focus-foot">
         <span>${it.last_assessed ? 'Last assessed: ' + escHtml(it.last_assessed) : ''}</span>
         <span class="focus-view">Explore →</span>

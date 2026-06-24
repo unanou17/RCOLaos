@@ -405,7 +405,7 @@ function buildFocus(){
     cont.innerHTML='<div class="focus-empty">✓ Nothing flagged for 2026 — every indicator is currently on track for advancement.</div>';
     return;
   }
-  sub.textContent=`${focusInds.length} indicator${focusInds.length>1?'s':''} flagged as the main focus for 2026.`;
+  sub.textContent=`${focusInds.length} indicator${focusInds.length>1?'s':''} flagged as the main focus for 2026 by UNDIS working group:`;
   const missing=focusInds.filter(i=>statusKey(i.status)==='missing');
   const others=focusInds.filter(i=>statusKey(i.status)!=='missing');
   let html='';

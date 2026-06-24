@@ -89,22 +89,24 @@ body{font-family:'Roboto',sans-serif;font-weight:400;font-size:16px;background:v
 .card-meets .card-accent{background:var(--meets-mid)}
 .card-approaches .card-accent{background:var(--approaches-mid)}
 .card-missing .card-accent{background:var(--missing-mid)}
-.card-body{padding:1rem 1.1rem;display:flex;flex-direction:column;flex:1}
+.card-body{padding:1.1rem 1.25rem;display:flex;flex-direction:column;flex:1}
 .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.5rem}
 .card-id{font-size:.72rem;font-weight:600;color:var(--text-muted);letter-spacing:.04em}
-.card-name{font-size:.92rem;font-weight:600;color:var(--text);min-height:2.4rem;margin-bottom:.75rem;line-height:1.4}
-.card-action{border-left:3px solid;padding:.55rem .7rem;border-radius:0 4px 4px 0;margin-bottom:.75rem}
+.card-name{font-size:.95rem;font-weight:600;color:var(--text);min-height:2.4rem;margin-bottom:.75rem;line-height:1.4}
+.card-action{border-left:3px solid;padding:.7rem .85rem;border-radius:0 4px 4px 0;margin-bottom:.75rem;flex:1}
 .card-exceeds .card-action{border-color:var(--exceeds-mid);background:var(--exceeds-bg)}
 .card-meets .card-action{border-color:var(--meets-mid);background:var(--meets-bg)}
 .card-approaches .card-action{border-color:var(--approaches-mid);background:var(--approaches-bg)}
 .card-missing .card-action{border-color:var(--missing-mid);background:var(--missing-bg)}
-.card-action-label{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:.3rem}
-.card-action-text{font-size:.8rem;color:var(--text);line-height:1.5}
-.card-footer{border-top:1px solid var(--border);padding:.6rem 1.1rem;display:flex;justify-content:space-between;align-items:center;margin-top:auto}
+.card-action-label{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:.4rem}
+.card-action-text{font-size:.83rem;color:var(--text);line-height:1.6}
+.card-footer{border-top:1px solid var(--border);padding:.65rem 1.25rem;display:flex;justify-content:space-between;align-items:center;margin-top:auto}
 .card-footer-meta{font-size:.75rem;color:var(--text-muted)}
 .card-explore{font-size:.78rem;font-weight:500;color:var(--accent);text-decoration:none}
 .card-explore:hover{text-decoration:underline}
 .focus-empty{background:#d8f3dc;border:1px solid #52b788;border-radius:6px;padding:1rem 1.25rem;color:#2d6a4f;font-size:.88rem;font-weight:500}
+/* Minimum card height so lone cards (e.g. Indicator 12) aren't squished */
+.focus-grid .indicator-card{min-height:340px}
 
 /* PILL */
 .pill{display:inline-block;font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;line-height:1.4}

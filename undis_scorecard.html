@@ -493,48 +493,60 @@ function buildActivities(){
 
 /* ── PDF EXPORT ── */
 async function downloadScorecardPDF(){
-  const btn=document.getElementById('pdf-btn');btn.textContent='Generating…';btn.disabled=true;
+  const btn=document.getElementById('pdf-btn');
+  btn.textContent='Generating…';btn.disabled=true;
   document.getElementById('header-actions').style.visibility='hidden';
   document.getElementById('hero-actions').style.visibility='hidden';
   try{
-    const opts={scale:2,useCORS:true,logging:false};
-    const [heroC,focusC,distC,actC]=await Promise.all([
-      html2canvas(document.getElementById('hero-card'),{...opts,backgroundColor:'#2A2342'}),
-      html2canvas(document.getElementById('focus-section'),{...opts,backgroundColor:'#faf9fc'}),
-      html2canvas(document.getElementById('progress-section'),{...opts,backgroundColor:'#faf9fc'}),
-      html2canvas(document.getElementById('activities-section'),{...opts,backgroundColor:'#faf9fc'})
-    ]);
     const {jsPDF}=window.jspdf;
-    const mm=5,pw=210-mm*2;
-    function addPage(pdf,canvases){
-      canvases.forEach((c,i)=>{
-        const w=c.width,h=c.height;
-        const scl=pw/(w/2);
-        const ph=h/2*scl;
-        if(i===0&&pdf.internal.getNumberOfPages()>1)pdf.addPage();
-        else if(i>0){}
-        const y=i===0?mm:pdf.internal.pageSize.getHeight()-ph;
-        // stack vertically, auto page breaks
-      });
+    const margin=5,A4W=210,A4H=297;
+    const pageW=A4W-margin*2;
+    const pageH=A4H-margin*2;
+    const opts={scale:2,useCORS:true,logging:false};
+
+    // Capture each section
+    const heroC   =await html2canvas(document.getElementById('hero-card'),   {...opts,backgroundColor:'#2A2342'});
+    const focusC  =await html2canvas(document.getElementById('focus-section'),{...opts,backgroundColor:'#faf9fc'});
+    const distC   =await html2canvas(document.getElementById('progress-section'),{...opts,backgroundColor:'#faf9fc'});
+    const actC    =await html2canvas(document.getElementById('activities-section'),{...opts,backgroundColor:'#faf9fc'});
+
+    // Stack two canvases vertically into one, with a small gap
+    function stack(a,b,gap=20){
+      const w=Math.max(a.width,b.width);
+      const ha=Math.round(a.height*(w/a.width));
+      const hb=Math.round(b.height*(w/b.width));
+      const out=document.createElement('canvas');
+      out.width=w;out.height=ha+gap+hb;
+      const ctx=out.getContext('2d');
+      ctx.fillStyle='#faf9fc';ctx.fillRect(0,0,w,out.height);
+      ctx.drawImage(a,0,0,w,ha);
+      ctx.drawImage(b,0,ha+gap,w,hb);
+      return out;
     }
-    const page1=[heroC,focusC];
-    const page2=[distC,actC];
-    const allPages=[page1,page2];
+
+    // Page 1: hero (dark bg) stacked above focus
+    const p1=stack(heroC,focusC,24);
+    // Page 2: distribution stacked above activities
+    const p2=stack(distC,actC,24);
+
+    // Fit each page to A4 width; if taller than A4 it scales down proportionally
+    function addImg(pdf,canvas,isFirst){
+      if(!isFirst)pdf.addPage();
+      const w=pageW;
+      const h=canvas.height*(w/canvas.width);
+      // If content is taller than one A4 page, scale it down to fit
+      const scale=Math.min(1,pageH/h);
+      const rw=w*scale,rh=h*scale;
+      const x=(A4W-rw)/2;
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',x,margin,rw,rh);
+    }
+
     const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-    let firstPage=true;
-    allPages.forEach(canvases=>{
-      if(!firstPage)pdf.addPage();firstPage=false;
-      let yPos=mm;
-      const targetW=pw;
-      canvases.forEach(c=>{
-        const scl=targetW/(c.width/2);
-        const h=(c.height/2)*scl;
-        if(yPos+h>297-mm){pdf.addPage();yPos=mm;}
-        pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',mm,yPos,targetW,h);
-        yPos+=h+3;
-      });
-    });
-    const d=new Date();const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    addImg(pdf,p1,true);
+    addImg(pdf,p2,false);
+
+    const d=new Date();
+    const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     pdf.save(`UNCT-UNDIS_Scorecard_LaoPDR_${ds}.pdf`);
   }finally{
     document.getElementById('header-actions').style.visibility='';

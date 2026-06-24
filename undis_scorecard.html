@@ -79,7 +79,8 @@ body{font-family:'Roboto',sans-serif;font-weight:400;font-size:16px;background:v
 .focus-section{margin-bottom:3rem}
 .focus-subhead{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);padding-bottom:.5rem;margin:1.5rem 0 1rem}
 .focus-subhead:first-child{margin-top:0}
-.focus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem}
+.focus-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem}
+.focus-grid.solo{grid-template-columns:minmax(0,680px)}
 
 /* INDICATOR CARD */
 .indicator-card{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;text-decoration:none;color:inherit;transition:box-shadow .2s;position:relative}
@@ -89,11 +90,11 @@ body{font-family:'Roboto',sans-serif;font-weight:400;font-size:16px;background:v
 .card-meets .card-accent{background:var(--meets-mid)}
 .card-approaches .card-accent{background:var(--approaches-mid)}
 .card-missing .card-accent{background:var(--missing-mid)}
-.card-body{padding:1.1rem 1.25rem;display:flex;flex-direction:column;flex:1}
+.card-body{padding:1.1rem 1.25rem .7rem;display:flex;flex-direction:column;flex:1}
 .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.5rem}
 .card-id{font-size:.72rem;font-weight:600;color:var(--text-muted);letter-spacing:.04em}
 .card-name{font-size:.95rem;font-weight:600;color:var(--text);min-height:2.4rem;margin-bottom:.75rem;line-height:1.4}
-.card-action{border-left:3px solid;padding:.7rem .85rem;border-radius:0 4px 4px 0;margin-bottom:.75rem;flex:1}
+.card-action{border-left:3px solid;padding:.7rem .85rem;border-radius:0 4px 4px 0;margin-bottom:0;flex:1;display:flex;flex-direction:column}
 .card-exceeds .card-action{border-color:var(--exceeds-mid);background:var(--exceeds-bg)}
 .card-meets .card-action{border-color:var(--meets-mid);background:var(--meets-bg)}
 .card-approaches .card-action{border-color:var(--approaches-mid);background:var(--approaches-bg)}
@@ -105,8 +106,9 @@ body{font-family:'Roboto',sans-serif;font-weight:400;font-size:16px;background:v
 .card-explore{font-size:.78rem;font-weight:500;color:var(--accent);text-decoration:none}
 .card-explore:hover{text-decoration:underline}
 .focus-empty{background:#d8f3dc;border:1px solid #52b788;border-radius:6px;padding:1rem 1.25rem;color:#2d6a4f;font-size:.88rem;font-weight:500}
-/* Minimum card height so lone cards (e.g. Indicator 12) aren't squished */
-.focus-grid .indicator-card{min-height:340px}
+/* Minimum card height so cards keep a consistent presence */
+.focus-grid .indicator-card{min-height:300px}
+.focus-grid.solo .indicator-card{min-height:0}
 
 /* PILL */
 .pill{display:inline-block;font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;line-height:1.4}
@@ -184,11 +186,11 @@ footer{text-align:center;padding:2rem;font-size:.78rem;color:var(--text-muted);b
       <img src="https://raw.githubusercontent.com/unrcolaos/dashboards/main/un_logo_lao.png" alt="United Nations Lao PDR" class="header-logo">
       <div class="header-divider"></div>
       <h1 class="header-title">UNDIS Disability Inclusion Scorecard</h1>
-      <span class="header-badge">UNDIS · 2025</span>
+      <span class="header-badge">LAO PDR</span>
     </div>
     <div class="header-actions" id="header-actions">
-      <button class="btn-action" onclick="downloadScorecardPDF()" id="pdf-btn">⬇ Print PDF</button>
-      <button class="btn-action" onclick="loadData(true)" id="refresh-btn"><span id="refresh-icon">↻</span> Refresh</button>
+      <button class="btn-action" onclick="downloadScorecardPDF()" id="pdf-btn">⬇ Print Page</button>
+      <button class="btn-action" onclick="loadData(true)" id="refresh-btn"><span id="refresh-icon">↻</span> Refresh Data</button>
     </div>
   </div>
 </header>
@@ -198,12 +200,12 @@ footer{text-align:center;padding:2rem;font-size:.78rem;color:var(--text-muted);b
   <div class="hero-card" id="hero-card">
     <div class="hero-top">
       <div class="hero-intro">
-        <p class="eyebrow">UNCT · Lao PDR · 2025 Annual Assessment</p>
+        <p class="eyebrow">UNCT · 2025 IMS Annual Assessment</p>
         <h2 class="hero-title">Disability Inclusion Scorecard</h2>
         <p class="hero-desc">Tracking the UN Country Team's progress on disability inclusion across leadership &amp; strategic planning, programming, organizational culture, and inclusiveness.</p>
         <div class="hero-actions" id="hero-actions">
           <a href="undis_indicators.html" class="btn-hero-primary">View All Indicators →</a>
-          <a href="#" target="_blank" rel="noopener" class="btn-hero-outline" id="resources-link">Resources ↗</a>
+          <a href="https://drive.google.com/drive/folders/1zdS6VRsfePo1tZ-AmhoccLBdlc3VEXNB?usp=sharing" target="_blank" rel="noopener" class="btn-hero-outline" id="resources-link">Resources ↗</a>
         </div>
       </div>
     </div>
@@ -260,7 +262,6 @@ footer{text-align:center;padding:2rem;font-size:.78rem;color:var(--text-muted);b
   <!-- ACTIVITIES -->
   <section class="activities-section" id="activities-section">
     <h2 class="section-title">Recent &amp; Upcoming Activities</h2>
-    <p class="section-subtitle">Live from the activities tracker — refresh to see the latest updates.</p>
     <div style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;text-align:left;">
         <thead>
@@ -281,7 +282,7 @@ footer{text-align:center;padding:2rem;font-size:.78rem;color:var(--text-muted);b
 
 </main>
 
-<footer>UNCT Lao PDR · UNDIS Disability Inclusion Scorecard · Data sourced from the UNDIS Backend Google Sheet</footer>
+<footer>UNCT Lao PDR · UNDIS Disability Inclusion Scorecard</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -409,11 +410,13 @@ function buildFocus(){
   const others=focusInds.filter(i=>statusKey(i.status)!=='missing');
   let html='';
   if(missing.length){
-    html+=`<div class="focus-subhead">Indicators with Missing Status</div><div class="focus-grid">${missing.map(focusCardHtml).join('')}</div>`;
+    const solo=missing.length===1?' solo':'';
+    html+=`<div class="focus-subhead">Indicators with Missing Status</div><div class="focus-grid${solo}">${missing.map(focusCardHtml).join('')}</div>`;
   }
   if(others.length){
+    const solo=others.length===1?' solo':'';
     html+=(missing.length?'<div class="focus-subhead" style="margin-top:2rem">Indicators with Potential for Advancement</div>':'<div class="focus-subhead">Indicators with Potential for Advancement</div>');
-    html+=`<div class="focus-grid">${others.map(focusCardHtml).join('')}</div>`;
+    html+=`<div class="focus-grid${solo}">${others.map(focusCardHtml).join('')}</div>`;
   }
   cont.innerHTML=html;
 }
@@ -553,7 +556,7 @@ async function downloadScorecardPDF(){
   }finally{
     document.getElementById('header-actions').style.visibility='';
     document.getElementById('hero-actions').style.visibility='';
-    btn.textContent='⬇ Print PDF';btn.disabled=false;
+    btn.textContent='⬇ Print Page';btn.disabled=false;
   }
 }
 

@@ -161,7 +161,7 @@ footer{text-align:center;padding:2rem;font-size:.76rem;color:var(--text-muted);b
       <span class="header-badge">UNDIS · 2025</span>
     </div>
     <div style="display:flex;gap:.5rem;align-items:center">
-      <button class="btn-back" onclick="downloadIndicatorsPDF()" id="pdf-btn-b">⬇ Print PDF</button>
+      <button class="btn-back" onclick="downloadIndicatorsPDF()" id="pdf-btn-b">⬇ Print Page</button>
       <a href="undis_scorecard.html" class="btn-back">← Back to Scorecard</a>
     </div>
   </div>
@@ -223,7 +223,7 @@ footer{text-align:center;padding:2rem;font-size:.76rem;color:var(--text-muted);b
 <!-- MAIN -->
 <main class="main" id="main-content"></main>
 
-<footer>UNCT Lao PDR · UNDIS Disability Inclusion Scorecard · 2025 Annual Assessment</footer>
+<footer>UNCT Lao PDR · UNDIS Disability Inclusion Scorecard</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -527,7 +527,7 @@ async function downloadIndicatorsPDF(){
     const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     pdf.save(`UNCT-UNDIS_Indicators_LaoPDR_${ds}.pdf`);
   }finally{
-    btn.textContent='⬇ Print PDF';btn.disabled=false;
+    btn.textContent='⬇ Print Page';btn.disabled=false;
   }
 }
 

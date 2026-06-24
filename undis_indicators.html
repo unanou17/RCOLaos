@@ -474,7 +474,9 @@ async function downloadIndicatorsPDF(){
     // All subsequent cards: y0 = top of that card.
     // y1 = top of next card (or bottom of dim-section for the last card).
     const blocks=[];
+    let dimCounter=0;
     mainEl.querySelectorAll('.dim-section').forEach(dimEl=>{
+      dimCounter++;
       const dimHeader=dimEl.querySelector('.dim-header');
       const cards=[...dimEl.querySelectorAll('.indicator-detail')];
       cards.forEach((card,i)=>{
@@ -486,7 +488,9 @@ async function downloadIndicatorsPDF(){
           : dimEl.getBoundingClientRect().bottom;
         blocks.push({
           y0:Math.round((blockTop-mainRect.top)*S),
-          y1:Math.round((blockBot-mainRect.top)*S)
+          y1:Math.round((blockBot-mainRect.top)*S),
+          dimStart:i===0,      // first block of a dimension (header bonded)
+          dimIndex:dimCounter  // 1-based dimension number
         });
       });
     });
@@ -512,10 +516,17 @@ async function downloadIndicatorsPDF(){
     yMm+=addImg(pdf,heroCanvas,yMm,pageW);
     yMm+=6; // 6mm gap between hero and first indicator
 
-    // Greedy pack: each block is atomic (never split), start new page if it won't fit
+    // Pack: each dimension starts on a fresh page (except Dim 1, which shares
+    // page 1 with the hero). Within a dimension, cards still overflow naturally
+    // if the dimension is too tall for a single page.
     for(const blk of blocks){
       const blkH=(blk.y1-blk.y0)*kMain;
-      if(yMm+blkH>margin+pageH){
+      if(blk.dimStart && blk.dimIndex>1){
+        // New dimension → always begin on a clean page
+        pdf.addPage();
+        yMm=margin;
+      }else if(yMm+blkH>margin+pageH){
+        // Same dimension, but this card won't fit → overflow to next page
         pdf.addPage();
         yMm=margin;
       }

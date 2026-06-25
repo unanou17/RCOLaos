@@ -730,6 +730,18 @@
     vertical-align: middle;
   }
   .assess-table tr:last-child td { border-bottom: none; }
+  .assess-table th:not(:first-child),
+  .assess-table td:not(:first-child) { white-space: nowrap; }
+  .assess-dim-row td {
+    padding: 16px 10px 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
   .assess-name { color: var(--text-muted); font-size: 0.78rem; }
   .yr-cell { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; white-space: nowrap; }
   .yr-cell .trend-dot { width: 9px; height: 9px; }
@@ -830,24 +842,6 @@
     <div class="focus-wrap" id="focus-grid"></div>
   </div>
 
-  <!-- Assessment History — past 3 years -->
-  <div class="assess-section">
-    <div class="section-title">Assessment History · Past 3 Years</div>
-    <p class="section-subtitle">All 15 indicators were first assessed in 2022. This table covers 2023–2025 reassessment cycles only — indicators not listed in a given year had their previous rating carried forward and were not reassessed that cycle.</p>
-    <div style="overflow-x:auto;">
-      <table class="assess-table">
-        <thead>
-          <tr>
-            <th>Indicator</th>
-            <th>Status change</th>
-            <th>Movement</th>
-          </tr>
-        </thead>
-        <tbody id="assess-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-
   <div class="progress-section">
     <div class="progress-title">Status Distribution by Year — All 15 Indicators</div>
     <div id="yearly-bars" style="margin-bottom:2rem;"></div>
@@ -856,6 +850,27 @@
       <div class="legend-item"><div class="legend-dot" style="background:var(--meets-mid)"></div> Meets</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--approaches-mid)"></div> Approaches</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--missing-mid)"></div> Missing</div>
+    </div>
+  </div>
+
+  <!-- Assessment History — all years grid -->
+  <div class="assess-section">
+    <div class="section-title">Assessment History · 2022–2025</div>
+    <p class="section-subtitle">Status for all 15 indicators across every assessment year. Grouped by dimension.</p>
+    <div style="overflow-x:auto;">
+      <table class="assess-table">
+        <thead>
+          <tr>
+            <th>Indicator</th>
+            <th>2022</th>
+            <th>2023</th>
+            <th>2024</th>
+            <th>2025</th>
+            <th style="white-space:nowrap;">Last Assessed</th>
+          </tr>
+        </thead>
+        <tbody id="assess-tbody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -1024,21 +1039,11 @@ function buildYearlyBars() {
 // ============================================================
 //  HARDCODED CONTENT — update once per year
 // ------------------------------------------------------------
-//  (1) FOCUS_THIS_YEAR — the curated "focus" list (your Sheet's Focus tab).
-//      Only `pi_id` is required: the name, status, dimension and
-//      last-assessed year are pulled LIVE from the Indicators tab by
-//      matching pi_id, so the status is always current. The optional
-//      fields below are fallbacks used only when the live sheet can't be
-//      reached (e.g. opening the file via file://).
-//
-//  (2) ASSESSMENT_HISTORY — last three assessed years per indicator
-//      (your Sheet's history tab). Use the exact status word
-//      (Exceeds / Meets / Approaches / Missing), or '' for a year that
-//      was NOT assessed. Hardcoding this lets you show only the years
-//      that were truly assessed, which the live year-columns can't
-//      distinguish from carried-forward values.
-//
-//  >>> The rows below are SAMPLE data — replace with your real tables. <<<
+//  FOCUS_THIS_YEAR — the curated "focus" list.
+//  Only `pi_id` is required: the name, status, dimension and
+//  last-assessed year are pulled LIVE from the Indicators tab by
+//  matching pi_id. The optional fields below are fallbacks used
+//  only when the live sheet can't be reached (e.g. file://).
 // ============================================================
 const FOCUS_THIS_YEAR = [
   { pi_id: 'PI 2.3', dimension: 'Programming & M&E',   recommendation: 'Provide MEL Group with gender-sensitive M&E technical training' },
@@ -1048,32 +1053,6 @@ const FOCUS_THIS_YEAR = [
   { pi_id: 'PI 4.3', dimension: 'Leadership',           recommendation: 'Develop and adopt a system-wide UNCT gender parity plan' },
   { pi_id: 'PI 5.2', dimension: 'Financial Resources',  recommendation: 'Organize ≥1 inter-agency gender capacity development activity this year' },
   { pi_id: 'PI 6.1', dimension: 'Gender Architecture',  recommendation: 'Conduct ≥1 UNCT-GEM capacity-building event in the current CF cycle' },
-];
-
-// One entry per indicator per assessed year.
-// `from` blank = first-ever assessment (renders ◆ Baseline chip).
-// Status rank for movement: Missing(0) < Approaches(1) < Meets(2) < Exceeds(3).
-// Note: indicators not listed in a given year had their previous rating
-// carried forward and were not actively reassessed that cycle.
-const ASSESSMENT_EVENTS = [
-  // 2025 — 5 indicators reassessed
-  { year: 2025, pi_id: 'PI 1.1', name: 'Common Country Analysis',        from: 'Approaches', to: 'Approaches' },
-  { year: 2025, pi_id: 'PI 2.2', name: 'Communication & Advocacy',       from: 'Approaches', to: 'Exceeds'    },
-  { year: 2025, pi_id: 'PI 2.3', name: 'UNSDCF Monitoring & Evaluation', from: 'Meets',      to: 'Meets'      },
-  { year: 2025, pi_id: 'PI 4.1', name: 'Leadership for Gender Equality', from: 'Approaches', to: 'Meets'      },
-  { year: 2025, pi_id: 'PI 5.1', name: 'Gender Coordination Mechanism',  from: 'Missing',    to: 'Exceeds'    },
-  // 2024 — 5 indicators reassessed
-  { year: 2024, pi_id: 'PI 1.1', name: 'Common Country Analysis',        from: 'Approaches', to: 'Approaches' },
-  { year: 2024, pi_id: 'PI 2.2', name: 'Communication & Advocacy',       from: 'Meets',      to: 'Approaches' },
-  { year: 2024, pi_id: 'PI 3.1', name: 'Engagement with Government',     from: 'Approaches', to: 'Exceeds'    },
-  { year: 2024, pi_id: 'PI 3.2', name: 'Engagement with GEWE CSOs',      from: 'Exceeds',    to: 'Approaches' },
-  { year: 2024, pi_id: 'PI 4.2', name: 'Organizational Culture',         from: 'Meets',      to: 'Meets'      },
-  // 2023 — 5 indicators reassessed
-  { year: 2023, pi_id: 'PI 1.1', name: 'Common Country Analysis',        from: 'Approaches', to: 'Approaches' },
-  { year: 2023, pi_id: 'PI 2.1', name: 'Joint Programmes',               from: 'Meets',      to: 'Meets'      },
-  { year: 2023, pi_id: 'PI 2.2', name: 'Communication & Advocacy',       from: 'Approaches', to: 'Meets'      },
-  { year: 2023, pi_id: 'PI 3.1', name: 'Engagement with Government',     from: 'Exceeds',    to: 'Approaches' },
-  { year: 2023, pi_id: 'PI 3.2', name: 'Engagement with GEWE CSOs',      from: 'Exceeds',    to: 'Exceeds'    },
 ];
 
 // --- SHARED HELPERS (focus + history) ---
@@ -1177,69 +1156,44 @@ function buildAssessmentHistory() {
   const tbody = document.getElementById('assess-tbody');
   if (!tbody) return;
 
-  const byId = {};
-  INDICATORS.forEach(i => { byId[String(i.pi_id).trim().toUpperCase()] = i; });
-
-  const byYear = {};
-  ASSESSMENT_EVENTS.forEach(ev => {
-    if (!byYear[ev.year]) byYear[ev.year] = [];
-    byYear[ev.year].push(ev);
+  // Group indicators by dimension, preserving sheet order
+  const dimOrder = [];
+  const dimMap = {};
+  INDICATORS.forEach(ind => {
+    const dim = String(ind.dimension || 'Other').trim();
+    if (!dimMap[dim]) { dimMap[dim] = []; dimOrder.push(dim); }
+    dimMap[dim].push(ind);
   });
-  const years = Object.keys(byYear).map(Number).sort((a, b) => b - a);
 
-  // Render a status pill for the "Status change" column.
-  const statusPill = (rawStatus) => {
+  // Render a dot + status label cell for a given raw status value
+  const yearCell = (rawStatus) => {
     const k = statusKey(rawStatus);
-    if (!k) return '';
-    const label = String(rawStatus).trim();
-    return `<span class="status-pill pill-${k}">${escHtml(label)}</span>`;
+    if (!k) return `<td class="yr-na">—</td>`;
+    const label = k.charAt(0).toUpperCase() + k.slice(1);
+    return `<td><span class="yr-cell"><span class="trend-dot dot-${k}"></span>${label}</span></td>`;
   };
 
-  // Build movement chip from a single event's from→to.
-  const moveChip = (from, to) => {
-    const fromKey = statusKey(from);
-    if (!fromKey) return `<span class="move-chip move-baseline">◆ Baseline</span>`;
-    const toKey = statusKey(to);
-    if (!toKey) return `<span class="move-chip move-flat">— No change</span>`;
-    const diff = RANK_BY_KEY[toKey] - RANK_BY_KEY[fromKey];
-    if (diff > 0) return `<span class="move-chip move-up">▲ Improved</span>`;
-    if (diff < 0) return `<span class="move-chip move-down">▼ Declined</span>`;
-    return `<span class="move-chip move-flat">— No change</span>`;
-  };
-
-  // Status change cell: "First assessment → [pill]" or "[pill] → [pill]"
-  const statusChangeCell = (from, to) => {
-    const fromKey = statusKey(from);
-    const toPill = statusPill(to);
-    if (!fromKey) return `<span style="color:var(--text-muted);font-size:0.82rem;">First assessment</span> → ${toPill}`;
-    return `${statusPill(from)} → ${toPill}`;
-  };
-
-  const rows = years.map(yr => {
-    const events = byYear[yr].slice().sort((a, b) => piSortKey(a.pi_id) - piSortKey(b.pi_id));
-    const headerRow = `
-      <tr class="assess-year-row" data-year="${yr}" style="background:var(--bg);">
-        <td colspan="3" style="padding:18px 10px 10px; font-size:1rem; font-weight:700; color:var(--text); letter-spacing:0.02em; border-bottom:1px solid var(--border);">
-          ${yr} &nbsp;·&nbsp; <span style="font-weight:400; font-size:0.82rem; color:var(--text-muted);">${events.length} indicator${events.length !== 1 ? 's' : ''} assessed</span>
-        </td>
-      </tr>`;
-    const dataRows = events.map(ev => {
-      const live = byId[String(ev.pi_id).trim().toUpperCase()];
-      const name = (live && live.indicator_name) || ev.name || '';
-      return `
-      <tr>
+  let html = '';
+  dimOrder.forEach(dim => {
+    html += `<tr class="assess-dim-row">
+      <td colspan="6">${escHtml(dim)}</td>
+    </tr>`;
+    dimMap[dim].forEach(ind => {
+      html += `<tr>
         <td>
-          <a class="pi-link" href="${piAnchorHref(ev.pi_id)}"><strong>${escHtml(ev.pi_id)}</strong></a>
-          ${name ? `<div class="assess-name">${escHtml(name)}</div>` : ''}
+          <a class="pi-link" href="${piAnchorHref(ind.pi_id)}"><strong>${escHtml(ind.pi_id)}</strong></a>
+          <div class="assess-name">${escHtml(ind.indicator_name || '')}</div>
         </td>
-        <td style="white-space:nowrap;">${statusChangeCell(ev.from, ev.to)}</td>
-        <td>${moveChip(ev.from, ev.to)}</td>
+        ${yearCell(ind.status_2022)}
+        ${yearCell(ind.status_2023)}
+        ${yearCell(ind.status_2024)}
+        ${yearCell(ind.status_2025)}
+        <td style="color:var(--text-muted); font-size:0.82rem;">${escHtml(ind.last_assessed || '—')}</td>
       </tr>`;
-    }).join('');
-    return headerRow + dataRows;
-  }).join('');
+    });
+  });
 
-  tbody.innerHTML = rows;
+  tbody.innerHTML = html;
 }
 
 // Build a deep-link from an Activities PI code to its detail card in indicators.html.
@@ -1369,19 +1323,15 @@ async function downloadScorecardPDF() {
 
     // Section elements (captured individually so we control page breaks)
     const focusEl    = document.querySelector('.focus-section');
-    const assessEl   = document.querySelector('.assess-section');
     const progressEl = document.querySelector('.progress-section');
-
-    // Measure the history table's 2025/2024 boundary BEFORE capture
-    const assessRect = assessEl ? assessEl.getBoundingClientRect() : null;
-    const yearRows   = assessEl ? assessEl.querySelectorAll('tr[data-year]') : [];
+    const assessEl   = document.querySelector('.assess-section');
 
     // Capture each block
-    const heroCanvas       = heroCardEl   ? await html2canvas(heroCardEl, captureOpts) : null;
-    const focusCanvas      = focusEl      ? await html2canvas(focusEl, lightOpts)      : null;
-    const assessCanvas     = assessEl     ? await html2canvas(assessEl, lightOpts)     : null;
-    const progressCanvas   = progressEl   ? await html2canvas(progressEl, lightOpts)   : null;
-    const activitiesCanvas = activitiesEl ? await html2canvas(activitiesEl, lightOpts) : null;
+    const heroCanvas       = heroCardEl   ? await html2canvas(heroCardEl, captureOpts)   : null;
+    const focusCanvas      = focusEl      ? await html2canvas(focusEl, lightOpts)        : null;
+    const progressCanvas   = progressEl   ? await html2canvas(progressEl, lightOpts)     : null;
+    const assessCanvas     = assessEl     ? await html2canvas(assessEl, lightOpts)       : null;
+    const activitiesCanvas = activitiesEl ? await html2canvas(activitiesEl, lightOpts)   : null;
 
     // --- helpers: slice a canvas horizontally, stack canvases vertically ---
     function sliceCanvas(src, sy, sh) {
@@ -1418,13 +1368,12 @@ async function downloadScorecardPDF() {
 
     const GAP = 30; // px gap between stacked blocks (~15px on screen)
 
-    // ── PAGE 1: hero + focus + history through 2025 ──
+    // ── PAGE 1: hero + focus + status distribution chart ──
     const p1Canvas = stackCanvases(
-      [heroCanvas, focusCanvas, assessTopCanvas].filter(Boolean), '#fafaf8', GAP);
+      [heroCanvas, focusCanvas, progressCanvas].filter(Boolean), '#fafaf8', GAP);
 
-    // ── PAGE 2: history 2024 & earlier + status-distribution chart ──
-    const page2Parts = [assessBottomCanvas, progressCanvas].filter(Boolean);
-    const p2Canvas = page2Parts.length ? stackCanvases(page2Parts, '#fafaf8', GAP) : null;
+    // ── PAGE 2: full assessment history grid ──
+    const p2Canvas = assessCanvas || null;
 
     // ── PAGE 3: activities table ──
     const p3Canvas = activitiesCanvas;
@@ -1458,7 +1407,7 @@ async function downloadScorecardPDF() {
       return { x, scale: w / canvas.width };
     }
 
-    // ── PAGE 1: hero + focus + 2025 history (first PDF page already exists) ──
+    // ── PAGE 1: hero + focus + chart (first PDF page already exists) ──
     const p1 = placePage(p1Canvas, false);
 
     // Stamp UN logo on page 1 (current page) — anchored to the hero's top-right
@@ -1477,7 +1426,7 @@ async function downloadScorecardPDF() {
       }
     }
 
-    // ── PAGE 2: 2024 history & earlier + chart ──
+    // ── PAGE 2: assessment history grid ──
     if (p2Canvas) placePage(p2Canvas, true);
 
     // ── PAGE 3: activities table ──
